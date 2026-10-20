@@ -4,6 +4,8 @@ import { ArrowDown, ArrowRight, ArrowUp, Check, ChevronLeft, Clock, Copy, Dumbbe
 import { Actions, Button, Empty, Field, Help, Modal, PageTitle, submit, useApp, value } from '../components/ui';
 import { blankSet, dateSchema, equipmentList, exerciseSchema, meta, modeLabels, muscles, validSet, type Exercise, type Workout, type WorkoutSet } from '../domain/model';
 import { ExerciseCatalog } from './ExerciseLibrary';
+import { ExerciseDemo } from '../components/ExerciseDemo';
+import { mediaFor } from '../domain/exercise-media';
 import { today } from '../domain/dates';
 import { displayNumber, workoutMetrics } from '../domain/analytics';
 import { journalFor, removeRecord, saveExercise, saveJournal, saveTemplate, saveWorkout } from '../db/commands';
@@ -44,7 +46,7 @@ export function WorkoutPage() {
 
 function WorkoutEditor({ initial }: { initial: Workout }) {
   const { data, run, notify } = useApp(); const navigate = useNavigate(); const [workout, setWorkout] = useState(() => structuredClone(initial));
-  const [picker, setPicker] = useState(false); const [dirty, setDirty] = useState(false); const [saving, setSaving] = useState(false); const [error, setError] = useState(''); const edits = useRef(0); const inFlight = useRef(false); const [generation] = useState(data.generation);
+  const [demo, setDemo] = useState<Exercise | null>(null); const [picker, setPicker] = useState(false); const [dirty, setDirty] = useState(false); const [saving, setSaving] = useState(false); const [error, setError] = useState(''); const edits = useRef(0); const inFlight = useRef(false); const [generation] = useState(data.generation);
   const allowLeave = useRef(false);
   const blocker = useBlocker(({ currentLocation, nextLocation }) => !allowLeave.current && (dirty || saving) && currentLocation.pathname !== nextLocation.pathname);
   useEffect(() => {
@@ -92,6 +94,7 @@ function WorkoutEditor({ initial }: { initial: Workout }) {
       const timed = entry.exercise.mode === 'timed' || entry.exercise.mode === 'cardio';
       const past = [...data.workouts].filter(w => w.status === 'completed' && w.id !== workout.id).sort((a, b) => b.localDate.localeCompare(a.localDate)).find(w => w.exercises.some(e => e.exercise.id === entry.exercise.id));
       return <section className="panel exercise-session" key={entry.id}><div className="panel-heading"><div className="exercise-session-title"><span className="exercise-order">{String(index + 1).padStart(2, '0')}</span><div><h2>{entry.exercise.name}</h2><span className="muted tiny">{entry.exercise.primaryMuscles.join(' · ')} · {entry.exercise.equipment.join(' / ') || '无需器械'} · {modeLabels[entry.exercise.mode]}{past ? ` · 上次 ${past.localDate}` : ' · 首次记录'}</span></div></div><div className="row-actions"><button className="icon-button" aria-label={`上移动作${entry.exercise.name}`} disabled={index === 0} onClick={() => { const next = [...workout.exercises]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; change({ ...workout, exercises: next }); }}><ArrowUp size={16} /></button><button className="icon-button" aria-label={`下移动作${entry.exercise.name}`} disabled={index === workout.exercises.length - 1} onClick={() => { const next = [...workout.exercises]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; change({ ...workout, exercises: next }); }}><ArrowDown size={16} /></button><button className="icon-button danger" aria-label={`移除动作${entry.exercise.name}`} onClick={() => { if (window.confirm('确定移除这个动作和当前组次？')) change({ ...workout, exercises: workout.exercises.filter(e => e.id !== entry.id) }); }}><Trash2 size={16} /></button></div></div>
+        {mediaFor(entry.exercise) && <button className="text-button demo-trigger" onClick={() => setDemo(entry.exercise)}><Play size={14} />查看示范</button>}
         <details className="inline-guide"><summary>动作说明</summary><ol className="exercise-guide">{entry.exercise.instructions.split('\n').filter(Boolean).map((step, i) => <li key={i}>{step}</li>)}</ol></details>
         {entry.exercise.mode === 'weighted' && <p className="input-hint">重量输入器械总外部负重。双持哑铃请合计两只，不含体重。</p>}
         <div className="set-table-wrap"><table className="set-table"><thead><tr><th>组</th><th>类型</th>{timed ? <><th>时长（分）</th>{entry.exercise.mode === 'cardio' && <th>距离（km）</th>}</> : <>{entry.exercise.mode !== 'bodyweight' && <th>{entry.exercise.mode === 'assisted' ? '辅助重量' : '总重量'}（kg）</th>}<th>次数</th></>}<th>RPE <Help label="RPE 说明" text="主观用力程度，1–10。可留空；10 表示本组已无法再完成一次。" /></th><th>完成</th><th /></tr></thead><tbody>{entry.sets.map((set, setIndex) => {
@@ -102,6 +105,7 @@ function WorkoutEditor({ initial }: { initial: Workout }) {
     })}
     {!workout.exercises.length && <div className="panel"><Empty title="尚未添加动作" action={<Button onClick={() => setPicker(true)}><Plus size={17} />选择动作</Button>}>从动作库选择动作后填写组次。</Empty></div>}
     <div className="workout-actions"><button className="button secondary" onClick={() => setPicker(true)}><Plus size={17} />添加动作</button><button className="button secondary" disabled={dirty || saving || !workout.exercises.length} onClick={() => { const name = window.prompt('给这个模板起个名字', workout.name); if (name) void run(() => saveTemplate({ ...meta(), name, exercises: workout.exercises.map(e => ({ ...e, sets: e.sets.map(s => ({ ...s, completed: false })) })) }, generation), '训练模板已保存'); }}><Copy size={16} />存为模板</button><button className="button danger-outline" disabled={saving} onClick={() => { if (window.confirm(workout.status === 'draft' ? '确定放弃这份训练草稿？' : '确定删除这次已完成训练？')) void run(async () => { await removeRecord('workouts', workout, generation); allowLeave.current = true; setDirty(false); navigate('/training'); }, '训练已删除'); }}><Trash2 size={16} />{workout.status === 'draft' ? '放弃' : '删除'}</button>{workout.status === 'draft' && <Button disabled={saving || !!error} onClick={() => void finish()}><Check size={17} />完成训练</Button>}</div>
+    {demo && <Modal title={`${demo.name} · 动作示范`} onClose={() => setDemo(null)}><ExerciseDemo exercise={demo} /><h3 className="guide-heading">动作说明</h3><ol className="exercise-guide">{demo.instructions.split('\n').filter(Boolean).map((step, index) => <li key={index}>{step}</li>)}</ol></Modal>}
     {picker && <Modal title="选择训练动作" onClose={() => setPicker(false)} wide><ExerciseCatalog choose={addExercise} /></Modal>}
   </>;
 }
