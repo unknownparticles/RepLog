@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Activity, CalendarDays, Dumbbell, Utensils, ChartNoAxesCombined, Settings, Check, CloudOff, Leaf, X, RefreshCw } from 'lucide-react';
+import { Activity, CalendarDays, Dumbbell, Utensils, ChartNoAxesCombined, Settings, Check, CloudOff, Leaf, X, RefreshCw, Calculator } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { ZodError } from 'zod';
@@ -11,6 +11,7 @@ import { TrainingPage, WorkoutPage, ExercisesPage } from './features/Training';
 import { NutritionPage, FoodsPage } from './features/Nutrition';
 import { SettingsPage } from './features/Settings';
 import { EquipmentPage } from './features/ExerciseLibrary';
+import { CalorieCalculatorPage } from './features/CalorieCalculator';
 const AnalyticsPage = lazy(() => import('./features/Analytics'));
 const navigation = [
   { to: '/calendar', label: '日历', icon: CalendarDays }, { to: '/training', label: '训练', icon: Dumbbell },
@@ -51,11 +52,11 @@ export function App() {
     catch (error) { notify(error instanceof ZodError ? '请检查输入：' + error.issues.map(i => i.message).slice(0, 3).join('；') : error instanceof Error ? error.message : '操作失败，请重试。', true); return false; }
   }
   if (!data) return <div className="boot"><Activity size={32} /><p>{databaseError || '正在读取你的记录…'}</p>{databaseError && <button onClick={() => location.reload()}>刷新重试</button>}</div>;
-  const active = route.pathname.startsWith('/workouts') || ['/exercises', '/equipment'].includes(route.pathname) ? '/training' : route.pathname === '/foods' ? '/nutrition' : route.pathname.startsWith('/day') ? '/calendar' : route.pathname;
+  const active = route.pathname.startsWith('/workouts') || ['/exercises', '/equipment'].includes(route.pathname) ? '/training' : ['/foods','/calories'].includes(route.pathname) ? '/nutrition' : route.pathname.startsWith('/day') ? '/calendar' : route.pathname;
   return <AppContext.Provider value={{ data, run, notify }}><div className="app-shell">
     <aside className="sidebar"><NavLink className="brand" to="/calendar"><span className="brand-mark"><Activity size={24} strokeWidth={2.6} /></span><span>RepLog<span className="brand-tag">健身日历</span></span></NavLink>
       <nav aria-label="主导航">{navigation.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} className={active === to ? 'nav-item selected' : 'nav-item'}><Icon size={18} /><span>{label}</span></NavLink>)}</nav>
-      <span className="nav-caption">资料库</span><nav aria-label="资料库"><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/exercises"><Dumbbell size={18} />动作库</NavLink><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/equipment"><Settings size={18} />器械库</NavLink></nav>
+      <span className="nav-caption">资料库</span><nav aria-label="资料库"><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/exercises"><Dumbbell size={18} />动作库</NavLink><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/equipment"><Settings size={18} />器械库</NavLink><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/calories"><Calculator size={18} />热量计算</NavLink></nav>
       <NavLink to="/settings#about" className="sidebar-version">RepLog <span>v{__APP_VERSION__}</span></NavLink>
     </aside>
     <div className="main-shell"><div className="topbar"><span className="topbar-title">RepLog <span>/</span> {navigation.find(item => item.to === active)?.label || '记录'}</span><div className="topbar-right"><span className="storage-status">{online ? <Check size={14} /> : <CloudOff size={14} />}{offlineReady || cached ? '离线可用 · 本地保存' : registerError ? '离线准备失败' : '本地保存'}</span><NavLink to="/settings" className="avatar" aria-label="我的设置">我</NavLink></div></div>
@@ -63,7 +64,7 @@ export function App() {
       <main><Suspense fallback={<div className="empty">正在准备分析图表…</div>}><Routes key={data.generation}>
         <Route path="/" element={<Navigate to="/calendar" replace />} /><Route path="/calendar" element={<CalendarPage />} /><Route path="/day/:date" element={<DayPage />} />
         <Route path="/training" element={<TrainingPage />} /><Route path="/exercises" element={<ExercisesPage />} /><Route path="/equipment" element={<EquipmentPage />} /><Route path="/workouts/:id" element={<WorkoutPage />} />
-        <Route path="/nutrition" element={<NutritionPage />} /><Route path="/foods" element={<FoodsPage />} /><Route path="/analytics" element={<AnalyticsPage />} /><Route path="/settings" element={<SettingsPage offlineReady={offlineReady || cached} registerError={registerError} />} />
+        <Route path="/nutrition" element={<NutritionPage />} /><Route path="/foods" element={<FoodsPage />} /><Route path="/calories" element={<CalorieCalculatorPage />} /><Route path="/analytics" element={<AnalyticsPage />} /><Route path="/settings" element={<SettingsPage offlineReady={offlineReady || cached} registerError={registerError} />} />
         <Route path="*" element={<div className="empty"><h1>这一页还没有记录</h1><NavLink to="/calendar" className="button primary">回到日历</NavLink></div>} />
       </Routes></Suspense></main><footer className="app-footer"><span>RepLog v{__APP_VERSION__}</span><span>数据保存在当前浏览器</span></footer>
     </div>

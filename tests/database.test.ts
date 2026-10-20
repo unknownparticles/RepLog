@@ -4,9 +4,24 @@ import { exportBackup, importBackup, validateBackup, clearData } from '../src/db
 import { journalFor, removeRecord, saveExercise, saveFood, saveJournal, saveMeal, saveWorkout } from '../src/db/commands';
 import { meta } from '../src/domain/model';
 import { sampleFood, meal, workout } from './fixtures';
+import { makeEstimatedMealDraft, saveEstimatedMeal } from '../src/db/estimated-meal';
 
 beforeEach(async () => { await db.delete(); await db.open(); await initialize(); });
 describe('本地事务与恢复', () => {
+  it('AI 仅在确认后入账，保留来源、未知营养，并原子回滚食物与餐食', async () => {
+    const data=await readSnapshot();
+    const candidate={name:'估算米饭',grams:150,energyPer100g:116,proteinPer100g:null,carbsPer100g:25,fatPer100g:null,assumptions:['按熟重估算']};
+    const draft=makeEstimatedMealDraft([candidate],{date:'2026-10-20',timeZone:'Asia/Shanghai',mealType:'午餐',provider:'测试代理'});
+    expect((await readSnapshot()).meals).toHaveLength(0);
+    await saveJournal({...journalFor('2026-10-20',[]),dietConfirmed:true},data.generation);
+    await saveEstimatedMeal(draft,data.generation);
+    const saved=await readSnapshot();expect(saved.meals[0].note).toContain('测试代理');expect(saved.meals[0].items[0].food.protein).toBeNull();
+    expect(saved.journals[0].dietConfirmed).toBe(false);
+    const failed=makeEstimatedMealDraft([{...candidate,name:'第二种食物'}],{date:'2026-10-21',timeZone:'Asia/Shanghai',mealType:'午餐',provider:'测试代理'});
+    const fail=()=>{throw new Error('模拟餐食写入失败');};db.meals.hook('creating',fail);
+    try{await expect(saveEstimatedMeal(failed,data.generation)).rejects.toThrow('模拟餐食写入失败');}finally{db.meals.hook('creating').unsubscribe(fail);}
+    expect((await readSnapshot()).foods).toHaveLength(1);expect((await readSnapshot()).meals).toHaveLength(1);
+  });
   it('旧版种子更新保留收藏、自建动作和历史快照，重复初始化不重复升级', async () => {
     const before = await readSnapshot(); const old = { ...before.exercises[0], favorite: true, instructions: '旧版说明' };
     await db.exercises.put(old);

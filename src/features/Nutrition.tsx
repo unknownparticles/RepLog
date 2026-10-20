@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Plus, Search, Star, Utensils, Trash2, Pencil, Copy, Check, ArrowRight, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { Actions, Button, Empty, Field, Metric, Modal, PageTitle, num, submit, useApp, value } from '../components/ui';
+import { energyFromMacros } from '../domain/calories';
 import { dateSchema, foodSchema, mealSchema, meta, type Food, type Meal } from '../domain/model';
 import { daySummary, displayNumber, nutritionValue } from '../domain/analytics';
 import { shiftDate, today } from '../domain/dates';
@@ -10,7 +11,8 @@ import { journalFor, removeRecord, saveFood, saveJournal, saveMeal } from '../db
 export function FoodFields({ food, onSaved }: { food?: Food; onSaved: (food: Food) => void }) {
   const { data, run } = useApp();
   const [busy, setBusy] = useState(false);
-  return <form onSubmit={submit(async form => {
+  const formRef = useRef<HTMLFormElement>(null);
+  return <form ref={formRef} onSubmit={submit(async form => {
     setBusy(true);
     await run(async () => {
       const next = foodSchema.parse({ ...(food || { ...meta(), favorite: false, archived: false }),
@@ -24,6 +26,12 @@ export function FoodFields({ food, onSaved }: { food?: Food; onSaved: (food: Foo
     <Field label="食物名称"><input name="name" defaultValue={food?.name} required placeholder="例如：原味酸奶" maxLength={120} autoFocus /></Field>
     <p className="form-note">按食品标签或自己的测量填写每 100 克营养。未知项留空，已知为零才填 0。</p>
     <div className="form-grid"><Field label="能量（千卡 / 100 克）"><input name="energy" type="number" min="0" step="any" defaultValue={food?.energy} required /></Field><Field label="蛋白质（克 / 100 克）"><input name="protein" type="number" min="0" step="any" defaultValue={food?.protein ?? ''} /></Field><Field label="碳水（克 / 100 克）"><input name="carbs" type="number" min="0" step="any" defaultValue={food?.carbs ?? ''} /></Field><Field label="脂肪（克 / 100 克）"><input name="fat" type="number" min="0" step="any" defaultValue={food?.fat ?? ''} /></Field></div>
+    <button type="button" className="text-button macro-estimate" onClick={() => void run(async () => {
+      const form = new FormData(formRef.current!);
+      const energy = energyFromMacros({protein:num(form,'protein')!,carbs:num(form,'carbs')!,fat:num(form,'fat')!});
+      const input = formRef.current!.elements.namedItem('energy') as HTMLInputElement;
+      input.value = String(energy);
+    }, '已按 4/4/9 估算每百克能量；已知标签值时请优先使用标签。')}>按三大营养素估算能量</button>
     <div className="form-grid"><Field label="可选份量名称"><input name="servingName" placeholder="例如：杯、碗、份" defaultValue={food?.servingName} /></Field><Field label="每份克重（克）"><input name="servingGrams" type="number" min="0.1" step="0.1" defaultValue={food?.servingGrams ?? ''} /></Field></div>
     <Actions><Button type="submit" disabled={busy}>{busy ? '正在保存…' : '保存食物'}</Button></Actions>
   </form>;
@@ -90,7 +98,7 @@ export function NutritionPage() {
   const now = today(data.profile.timeZone); const parsed = dateSchema.safeParse(params.get('date') || now); const date = parsed.success ? parsed.data : now;
   const [adding, setAdding] = useState(params.get('add') === '1'); const day = daySummary(data, date);
   return <><PageTitle title="饮食记录" description="按餐次记录食物和摄入。" action={<Button onClick={() => setAdding(true)}><Plus size={18} />记录餐食</Button>} />
-    <div className="toolbar"><div className="date-switcher"><button className="icon-button" aria-label="前一天" onClick={() => setParams({ date: shiftDate(date, -1) })}><ChevronLeft size={18} /></button><input type="date" aria-label="饮食日期" value={date} onChange={e => { if (dateSchema.safeParse(e.target.value).success) setParams({ date: e.target.value }); }} /><button className="icon-button" aria-label="后一天" onClick={() => setParams({ date: shiftDate(date, 1) })}><ChevronRight size={18} /></button></div><Link className="button secondary" to="/foods"><BookOpen size={17} />食物库<ArrowRight size={16} /></Link></div>
+    <div className="toolbar"><div className="date-switcher"><button className="icon-button" aria-label="前一天" onClick={() => setParams({ date: shiftDate(date, -1) })}><ChevronLeft size={18} /></button><input type="date" aria-label="饮食日期" value={date} onChange={e => { if (dateSchema.safeParse(e.target.value).success) setParams({ date: e.target.value }); }} /><button className="icon-button" aria-label="后一天" onClick={() => setParams({ date: shiftDate(date, 1) })}><ChevronRight size={18} /></button></div><Link className="button secondary" to="/calories">热量计算</Link><Link className="button secondary" to="/foods"><BookOpen size={17} />食物库<ArrowRight size={16} /></Link></div>
     <div className="metrics four"><Metric label="已记录摄入" value={day.diet === 'empty' ? '—' : displayNumber(day.nutrition.energy.value)} unit="千卡" detail={day.diet === 'complete' ? '已确认全天完整' : '部分记录不代表全天摄入'} tone="orange" />{(['protein', 'carbs', 'fat'] as const).map((key, i) => <Metric key={key} label={['蛋白质', '碳水化合物', '脂肪'][i]} value={day.diet === 'empty' ? '—' : displayNumber(day.nutrition[key].value, 1)} unit="克" detail={!day.nutrition[key].known ? '存在未知项 · 仅为已知小计' : day.goal ? `目标 ${day.goal[key] ?? '未设置'} 克` : '未设置目标'} tone={['green', 'blue', 'purple'][i]} />)}</div>
     <div className="panel"><div className="panel-heading"><h2>当日餐食</h2><button className={`button ${day.diet === 'complete' ? 'complete' : 'secondary'}`} onClick={() => { if (day.diet === 'empty' && !window.confirm('当天没有食物记录，确定确认全天零摄入？')) return; void run(() => saveJournal({ ...journalFor(date, data.journals), dietConfirmed: day.diet !== 'complete' }, data.generation), day.diet === 'complete' ? '已取消完整确认' : '已确认全天饮食记录完整'); }}><Check size={16} />{day.diet === 'complete' ? '已记全 · 点击取消' : '确认全天已记全'}</button></div><MealList date={date} /></div>
     {adding && <MealDialog date={date} onClose={() => { setAdding(false); if (params.has('add')) setParams({ date }); }} />}

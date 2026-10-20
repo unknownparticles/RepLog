@@ -28,6 +28,7 @@ jobs:
       - run: npm run build
         env:
           PAGES_BASE_PATH: ${{ vars.PAGES_BASE_PATH }}
+          VITE_MEAL_AI_ENDPOINT: ${{ vars.MEAL_AI_ENDPOINT }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

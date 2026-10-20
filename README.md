@@ -2,13 +2,15 @@
 
 以日历串联训练与饮食的健身 PWA：每天吃了什么、练了什么，以及长期变化趋势。
 
-当前已开始实施 **v0.4.0**，提供可运行的日历、训练、饮食、分析和设置页面。默认中文、移动端优先、无需登录，数据保存在当前浏览器。关于页明确显示应用版本与构建信息。全部规格验收进度见实施任务，当前尚未发布线上站点。
+当前已开始实施 **v0.5.0**，提供可运行的日历、训练、饮食、分析和设置页面。默认中文、移动端优先、无需登录，数据保存在当前浏览器。关于页明确显示应用版本与构建信息。全部规格验收进度见实施任务，当前尚未发布线上站点。
 
 界面参考 shadcn/ui，使用 Radix UI 提供弹窗和筛选交互。内置 **84 个动作、30 类器械**，支持中英文搜索、辅助肌群筛选、现有器械匹配及个人动作维护。
 
 其中 **29 个动作提供真人视频示范**，支持循环、慢放和按需保存供离线使用。[素材与离线说明](docs/exercise-media.md)包含对应范围、作者署名和授权信息。
 
 全部 **84 个内置动作具有 SVG 线条缩略图**，可切换动态图/静态图，支持减少动态效果及离线显示。详见 [线条缩略图说明](docs/exercise-thumbnails.md)。
+
+新增 [热量计算](docs/calorie-calculator.md)：食物按克重、kJ/kcal 或三大营养素换算，每日需求与运动消耗估算。已核对 wger 的公式实现和测试，支持离线使用。另预留 [AI 餐食接口](docs/meal-ai-integration.md)，默认关闭，配置代理后可生成待确认草稿。
 
 ## 运行与部署
 
@@ -40,6 +42,7 @@ npm run preview
 | 动作库、训练部位、器械 | [动作库](openspec/changes/design-fitness-pwa/specs/exercise-library/spec.md) |
 | 训练动作、组数、重量、有氧 | [训练记录](openspec/changes/design-fitness-pwa/specs/workout-logging/spec.md) |
 | 每日餐食、热量、营养素 | [饮食记录](openspec/changes/design-fitness-pwa/specs/nutrition-logging/spec.md) |
+| 简易热量计算与 AI 接口预留 | [热量工具](openspec/changes/design-fitness-pwa/specs/calorie-tools/spec.md) |
 | 日、周、月、季度、年度分析与图表 | [多周期分析](openspec/changes/design-fitness-pwa/specs/period-analytics/spec.md) |
 | 安装、离线、备份、恢复 | [应用与数据](openspec/changes/design-fitness-pwa/specs/pwa-data/spec.md) |
 

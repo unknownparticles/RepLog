@@ -18,6 +18,8 @@ RepLog 独立设计前端 PWA，借鉴以上项目的产品组织方式。首版
 
 ## 后续数据源
 
+热量计算的源码位置、已核对版本和示例结果见 [热量计算参考](calorie-calculator.md)，重点参考 wger 的 Mifflin–St Jeor 实现及测试、每克营养能量因子。Waistline 作为本地食物日记与份量流程参考，不作为代谢公式来源。
+
 [Open Food Facts](https://github.com/openfoodfacts/openfoodfacts-server) 可作为包装食品条码检索的后续候选。接入前需核对当时的 API、调用限制、数据库及图片许可，单独设计中文食品覆盖不足、未知营养项、网络失败和缓存策略。首版不依赖该数据源，也不承诺自动识别餐食热量。
 
 ## 可复查来源
