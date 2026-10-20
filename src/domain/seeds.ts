@@ -25,7 +25,7 @@ const definitions: Definition[] = [
   ['户外跑步', ['有氧'], [], 'cardio'], ['跑步机', ['有氧'], ['跑步机'], 'cardio'],
   ['室内单车', ['有氧'], ['单车'], 'cardio'], ['划船机', ['有氧'], ['划船机'], 'cardio'],
 ];
-export const SEED_VERSION = '3';
+export const SEED_VERSION = '4';
 const originals: Exercise[] = definitions.map(([name, primaryMuscles, equipment, mode, instructions, secondaryMuscles], index) => ({
   ...meta(`builtin-${String(index + 1).padStart(3, '0')}`), name, primaryMuscles, equipment, mode,
   instructions: instructions || '选择可控制的强度，动作全程保持稳定，出现疼痛时停止。',
@@ -44,4 +44,16 @@ export const seedExercises: Exercise[] = [
     ...meta(`builtin-${String(id).padStart(3, '0')}`), name, primaryMuscles, equipment, mode, aliases: [english], secondaryMuscles, instructions,
     optionalEquipment: [], builtin: true, favorite: false, archived: false,
   })),
+  {
+    ...meta('builtin-109'), name: '推雪橇车', aliases: ['Sled Push', 'Prowler Push', '推雪橇', '雪橇推行'],
+    primaryMuscles: ['腿', '臀', '有氧'], secondaryMuscles: ['核心', '肩', '手臂'], equipment: ['雪橇车'], optionalEquipment: [], mode: 'cardio',
+    instructions: '确认训练道平整畅通，双手握稳把手，收紧核心并适度前倾。\n保持背部稳定，以连续小步推地向前，不塌腰或耸肩。\n记录实际推行时长和距离；车体及加载配重、地面材质写入训练备注，保持同车同场地比较。',
+    builtin: true, favorite: false, archived: false,
+  },
+  {
+    ...meta('builtin-110'), name: '波比跳', aliases: ['Burpee', 'Burpees', '波比', '立卧撑跳', '立卧跳', '波比跳跃'],
+    primaryMuscles: ['腿', '胸', '有氧'], secondaryMuscles: ['臀', '核心', '肩', '手臂'], equipment: [], optionalEquipment: [], mode: 'bodyweight',
+    instructions: '站稳后屈髋屈膝，双手撑地，双脚后移进入高平板支撑，避免塌腰。\n控制完成一次俯卧撑，双脚收回后起身向上跳，屈膝缓冲落地；保持呼吸和可控节奏。\n完成整个循环计一次；初学者可逐脚后撤和收回、取消俯卧撑或跳跃，并在训练备注注明变式。',
+    builtin: true, favorite: false, archived: false,
+  },
 ];

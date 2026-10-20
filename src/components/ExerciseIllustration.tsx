@@ -45,6 +45,7 @@ function Equipment({ scene, exercise, from, to, motion }: { scene: Scene; exerci
     {scene === 'treadmill' && <path d="M25 104H136M128 104V48H108M118 103V99" />}
     {scene === 'elliptical' && <><circle cx="126" cy="88" r="12" /><path d="M28 104H141M122 88L113 33H104M127 88L133 38H141M52 96L119 90M34 101L119 96" /></>}
     {scene === 'stairs' && <path d="M23 104H49V92H79V79H113V66H141" />}
+    {scene === 'sled' && <><path d="M109 102H151L155 98M125 102V70M132 102V65M111 95H149M141 95V81" /><circle cx="141" cy="90" r="5" /></>}
     {scene === 'rope' && <path d="M63 65C10 12 9 22 12 53C15 117 145 117 148 53C151 22 150 12 97 65" className="art-band" />}
     {scene === 'wheel' && <><Dot at={middle(from.lh,from.rh)} end={middle(to.lh,to.rh)} radius={7} motion={motion} /><Segment a={offset(middle(from.lh,from.rh),-10,0)} b={offset(middle(from.lh,from.rh),10,0)} endA={offset(middle(to.lh,to.rh),-10,0)} endB={offset(middle(to.lh,to.rh),10,0)} motion={motion} /></>}
     {(exercise.equipment.includes('史密斯机') || exercise.equipment.includes('深蹲架')) && <path d="M34 102V13M132 102V13M29 27H39M127 27H137M29 75H39M127 75H137" />}

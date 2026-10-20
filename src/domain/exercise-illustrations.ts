@@ -3,7 +3,7 @@ import type { Exercise } from './model';
 export type Point = [number, number];
 export type Joint = 'head' | 'shoulder' | 'hip' | 'le' | 'lh' | 're' | 'rh' | 'lk' | 'lf' | 'rk' | 'rf';
 export type Pose = Record<Joint, Point>;
-export type Scene = 'floor' | 'bench' | 'incline' | 'seat' | 'cable' | 'pulldown' | 'pullup' | 'dip' | 'rack' | 'legpress' | 'bike' | 'rower' | 'treadmill' | 'elliptical' | 'stairs' | 'rope' | 'wheel' | 'romanChair' | 'ski';
+export type Scene = 'floor' | 'bench' | 'incline' | 'seat' | 'cable' | 'pulldown' | 'pullup' | 'dip' | 'rack' | 'legpress' | 'bike' | 'rower' | 'treadmill' | 'elliptical' | 'stairs' | 'rope' | 'wheel' | 'romanChair' | 'ski' | 'sled';
 export type Illustration = { from: Pose; to: Pose; scene: Scene; still?: boolean; name: string };
 const front: Pose = { head:[80,19], shoulder:[80,33], hip:[80,66], le:[65,48], lh:[63,69], re:[95,48], rh:[97,69], lk:[70,83], lf:[66,102], rk:[90,83], rf:[94,102] };
 const side: Pose = { head:[91,20], shoulder:[87,34], hip:[79,66], le:[92,50], lh:[94,68], re:[83,51], rh:[84,69], lk:[75,85], lf:[86,102], rk:[85,84], rf:[97,102] };
@@ -79,6 +79,8 @@ const definitions: Array<[number[], Illustration]> = [
   [[81],scene('跳绳',front,shift(front,-9),'rope')],
   [[82],scene('壶铃摆动',pose(hinge,{lh:[90,92],rh:[94,91]}),pose(side,{le:[108,36],lh:[131,38],re:[104,43],rh:[127,42]}))],
   [[84],scene('腹肌轮',kneeling,pose(kneeling,{head:[120,65],shoulder:[110,76],hip:[72,80],le:[125,84],lh:[142,98],re:[117,86],rh:[135,98]}),'wheel')],
+  [[109],scene('雪橇推行',pose(hinge,{le:[120,59],lh:[132,65],re:[113,64],rh:[125,70],lk:[59,84],lf:[46,102],rk:[87,87],rf:[94,102]}),pose(hinge,{le:[120,59],lh:[132,65],re:[113,64],rh:[125,70],lk:[88,83],lf:[95,102],rk:[64,88],rf:[49,102]}),'sled')],
+  [[110],scene('波比跳起落',pushup.to,pose(shift(front,-10),{le:[64,13],lh:[66,2],re:[96,13],rh:[94,2]}))],
 ];
 export const illustrationRegistry = new Map<string, Illustration>(definitions.flatMap(([ids,drawing]) => ids.map(id => [`builtin-${String(id).padStart(3,'0')}`,drawing] as const)));
 const machineDrawings: Array<[number[], Illustration]> = [

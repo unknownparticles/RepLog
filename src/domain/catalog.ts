@@ -51,6 +51,7 @@ export const equipmentCatalog = [
   { name: '卷腹机', group: '固定器械', aliases: ['Abdominal Crunch Machine', '腹肌机', '腹部屈曲机'], description: '固定轨迹卷腹设备。调整座椅和支撑垫，通过躯干屈曲完成动作，避免只用手臂拉动。' },
   { name: '滑雪机', group: '有氧设备', aliases: ['SkiErg', 'Ski Erg', '滑雪测功仪'], description: '双手拉动绳把模拟滑雪推进。记录实际时长和设备显示距离，阻力档位可写入备注。' },
   { name: '风阻单车', group: '有氧设备', aliases: ['Air Bike', 'Assault Bike', '风扇车'], description: '手脚配合推动风扇产生阻力的单车。记录时长与设备距离，间歇工作和休息时间可写入备注。' },
+  { name: '雪橇车', group: '训练辅助', aliases: ['sled', 'prowler', '力量雪橇', '推雪橇车'], description: '在平整训练道上推动的负重雪橇。确认路线畅通，记录时长和距离；车体与加载配重、地面材质写入训练备注，保持同车同场地比较。' },
 ] as const;
 export const equipmentGroups = ['自由重量', '固定器械', '训练辅助', '有氧设备'] as const;
 export type ExerciseFilter = { query?: string; muscles?: string[]; includeSecondary?: boolean; equipment?: string[]; equipmentMatch?: 'uses' | 'available'; equipmentActive?: boolean; bodyweightOnly?: boolean; favorite?: boolean; archived?: boolean; type?: '' | 'strength' | 'cardio' };
