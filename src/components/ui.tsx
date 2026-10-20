@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, type ReactNode, type FormEvent } from 'react';
+import { createContext, useContext, useEffect, useRef, type ReactNode, type FormEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -12,13 +12,24 @@ export function PageTitle({ title, description, action }: { title: string; descr
 }
 export function Empty({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) { return <div className="empty"><h3>{title}</h3>{children && <p>{children}</p>}{action}</div>; }
 export function Metric({ label, value, unit, detail, tone = 'green' }: { label: string; value: ReactNode; unit?: string; detail?: string; tone?: string }) {
-  return <article className="metric"><span className="metric-label">{label}</span><div className="metric-value">{value}<small>{unit}</small></div>{detail && <span className="metric-detail">{detail}</span>}</article>;
+  return <article className={`metric metric-${tone}`}><span className="metric-label">{label}</span><div className="metric-value">{value}<small>{unit}</small></div>{detail && <span className="metric-detail">{detail}</span>}</article>;
 }
 const DialogDepth = createContext(0);
 export function Modal({ title, children, onClose, wide = false }: { title: string; children: ReactNode; onClose: () => void; wide?: boolean }) {
   const depth = useContext(DialogDepth);
   const content = useRef<HTMLDivElement>(null);
   const returnFocus = useRef(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const update = () => {
+      content.current?.style.setProperty('--dialog-viewport-height', `${viewport.height}px`);
+      content.current?.style.setProperty('--dialog-keyboard-inset', `${Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)}px`);
+    };
+    update();
+    viewport.addEventListener('resize', update); viewport.addEventListener('scroll', update);
+    return () => { viewport.removeEventListener('resize', update); viewport.removeEventListener('scroll', update); };
+  }, []);
   return <DialogDepth.Provider value={depth + 1}><Dialog.Root open onOpenChange={open => { if (!open) onClose(); }}><Dialog.Portal><Dialog.Overlay className="modal-overlay" style={{ zIndex: 60 + depth * 2 }} /><Dialog.Content ref={content} data-replog-dialog aria-describedby={undefined} className={wide ? 'modal wide' : 'modal'} style={{ zIndex: 61 + depth * 2 }} onEscapeKeyDown={event => {
     event.preventDefault();
     const dialogs = document.querySelectorAll('[data-replog-dialog]');

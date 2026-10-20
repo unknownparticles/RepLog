@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Activity, CalendarDays, Dumbbell, Utensils, ChartNoAxesCombined, Settings, Check, CloudOff, Leaf, X, RefreshCw, Calculator } from 'lucide-react';
+import { Link, NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Activity, CalendarDays, Dumbbell, Utensils, ChartNoAxesCombined, Settings, Check, CloudOff, X, RefreshCw, Calculator } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { ZodError } from 'zod';
@@ -55,11 +55,11 @@ export function App() {
   const active = route.pathname.startsWith('/workouts') || ['/exercises', '/equipment'].includes(route.pathname) ? '/training' : ['/foods','/calories'].includes(route.pathname) ? '/nutrition' : route.pathname.startsWith('/day') ? '/calendar' : route.pathname;
   return <AppContext.Provider value={{ data, run, notify }}><div className="app-shell">
     <aside className="sidebar"><NavLink className="brand" to="/calendar"><span className="brand-mark"><Activity size={24} strokeWidth={2.6} /></span><span>RepLog<span className="brand-tag">健身日历</span></span></NavLink>
-      <nav aria-label="主导航">{navigation.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} className={active === to ? 'nav-item selected' : 'nav-item'}><Icon size={18} /><span>{label}</span></NavLink>)}</nav>
+      <nav aria-label="主导航">{navigation.map(({ to, label, icon: Icon }) => <Link key={to} to={to} aria-current={active === to ? 'page' : false} className={active === to ? 'nav-item selected' : 'nav-item'}><Icon size={18} /><span>{label}</span></Link>)}</nav>
       <span className="nav-caption">资料库</span><nav aria-label="资料库"><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/exercises"><Dumbbell size={18} />动作库</NavLink><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/equipment"><Settings size={18} />器械库</NavLink><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/calories"><Calculator size={18} />热量计算</NavLink></nav>
       <NavLink to="/settings#about" className="sidebar-version">RepLog <span>v{__APP_VERSION__}</span></NavLink>
     </aside>
-    <div className="main-shell"><div className="topbar"><span className="topbar-title">RepLog <span>/</span> {navigation.find(item => item.to === active)?.label || '记录'}</span><div className="topbar-right"><span className="storage-status">{online ? <Check size={14} /> : <CloudOff size={14} />}{offlineReady || cached ? '离线可用 · 本地保存' : registerError ? '离线准备失败' : '本地保存'}</span><NavLink to="/settings" className="avatar" aria-label="我的设置">我</NavLink></div></div>
+    <div className="main-shell"><div className="topbar"><MobileBrand /><span className="topbar-title">RepLog <span>/</span> {navigation.find(item => item.to === active)?.label || '记录'}</span><div className="topbar-right"><span className="storage-status">{online ? <Check size={14} /> : <CloudOff size={14} />}{offlineReady || cached ? '离线可用 · 本地保存' : registerError ? '离线准备失败' : '本地保存'}</span><NavLink to="/settings" className="avatar" aria-label="我的设置">我</NavLink></div></div>
       {needRefresh && <div className="update-banner"><RefreshCw size={16} /><span>新版本已准备好。请先保存当前输入，再更新。</span><button onClick={() => { if (window.confirm('确定已保存当前输入？更新会重新载入页面，已保存的训练草稿将保留。')) void updateServiceWorker(true); }}>更新应用</button></div>}
       <main><Suspense fallback={<div className="empty">正在准备分析图表…</div>}><Routes key={data.generation}>
         <Route path="/" element={<Navigate to="/calendar" replace />} /><Route path="/calendar" element={<CalendarPage />} /><Route path="/day/:date" element={<DayPage />} />
@@ -68,7 +68,9 @@ export function App() {
         <Route path="*" element={<div className="empty"><h1>这一页还没有记录</h1><NavLink to="/calendar" className="button primary">回到日历</NavLink></div>} />
       </Routes></Suspense></main><footer className="app-footer"><span>RepLog v{__APP_VERSION__}</span><span>数据保存在当前浏览器</span></footer>
     </div>
-    <nav className="mobile-nav" aria-label="手机导航">{navigation.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} className={active === to ? 'selected' : ''}><Icon size={21} /><span>{label}</span></NavLink>)}</nav>
+    <nav className="mobile-nav" aria-label="手机导航">{navigation.map(({ to, label, icon: Icon }) => <Link key={to} to={to} aria-current={active === to ? 'page' : false} className={active === to ? 'selected' : ''}><span className="mobile-nav-icon"><Icon size={21} /></span><span>{label}</span></Link>)}</nav>
     {toast && <div className={`toast ${toast.error ? 'error' : ''}`} role={toast.error ? 'alert' : 'status'}>{toast.error ? <Activity size={18} /> : <Check size={18} />}<span>{toast.text}</span><button onClick={() => setToast(null)} aria-label="关闭提示"><X size={16} /></button></div>}
   </div></AppContext.Provider>;
 }
+
+function MobileBrand() { return <NavLink className="mobile-brand" to="/calendar" aria-label="RepLog 首页"><Activity size={20} strokeWidth={2.6} />RepLog</NavLink>; }

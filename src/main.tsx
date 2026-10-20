@@ -4,6 +4,7 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { App } from './App';
 import { initialize } from './db/database';
 import './styles.css';
+import './mobile.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(<div className="boot"><div className="brand-mark">R</div><h1>RepLog</h1><p>正在载入…</p></div>);

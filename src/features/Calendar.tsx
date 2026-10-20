@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { addDays, format, parseISO, startOfMonth, startOfWeek } from 'date-fns';
-import { ArrowRight, Check, ChevronLeft, ChevronRight, Coffee, Dumbbell, Flame, Plus, Scale, Sprout, Utensils } from 'lucide-react';
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Coffee, Dumbbell, Flame, Play, Plus, Scale, Sprout, Utensils } from 'lucide-react';
 import { Actions, Button, Empty, Field, Metric, Modal, PageTitle, num, submit, useApp, value } from '../components/ui';
 import { aggregate, daySummary, displayNumber } from '../domain/analytics';
 import { dateKey, days, periodTitle, range, shiftPeriod, today, type Period } from '../domain/dates';
@@ -39,26 +39,52 @@ export function JournalPanel({ date, compact = false }: { date: string; compact?
   </section>;
 }
 
+function DailyFocus({ date }: { date: string }) {
+  const { data } = useApp();
+  const [quickEntry, setQuickEntry] = useState<'meal' | 'weight' | null>(null);
+  const day = daySummary(data, date);
+  const isToday = date === today(data.profile.timeZone);
+  const draft = data.workouts.find(workout => workout.status === 'draft');
+  const title = draft ? '接着上次，继续练' : day.count ? `已完成 ${day.count} 次训练` : day.journal?.restDay ? '好好休息，也是进步' : isToday ? '今天的进步，从这里开始' : '记录这一天的进步';
+  return <>
+    <section className="daily-focus" aria-label="快捷记录">
+      <div className="daily-training">
+        <div className="daily-focus-heading"><span>{isToday ? '今天' : '当日'} · {format(parseISO(date), 'M 月 d 日')}</span><Dumbbell size={22} /></div>
+        <h2>{title}</h2>
+        <p>{draft ? `${draft.localDate} · ${draft.name}` : day.journal?.restDay ? '恢复状态，准备下一次出发。' : '记录每一组，看见自己的变化。'}</p>
+        <Link className="button" to={draft ? `/workouts/${draft.id}` : `/training?date=${date}`}><Play size={17} />{draft ? '继续训练' : '记录训练'}<ArrowRight size={17} /></Link>
+      </div>
+      <div className="quick-entries">
+        <button onClick={() => setQuickEntry('meal')}><span className="quick-icon meal"><Utensils size={20} /></span><span><strong>记录餐食</strong><small>吃得好，也记得好</small></span><Plus size={17} /></button>
+        <button onClick={() => setQuickEntry('weight')}><span className="quick-icon weight"><Scale size={20} /></span><span><strong>记录体重</strong><small>{day.weight ? `${displayNumber(day.weight.weightGrams / 1000, 1)} kg · 已记录` : '关注长期的变化'}</small></span><Plus size={17} /></button>
+      </div>
+    </section>
+    {quickEntry === 'meal' && <MealDialog date={date} onClose={() => setQuickEntry(null)} />}
+    {quickEntry === 'weight' && <WeightDialog date={date} onClose={() => setQuickEntry(null)} />}
+  </>;
+}
+
 export function CalendarPage() {
   const { data } = useApp(); const [params, setParams] = useSearchParams(); const now = today(data.profile.timeZone);
+  const [defaultView] = useState<Period>(() => window.matchMedia('(max-width: 760px)').matches ? 'week' : 'month');
   const parsed = dateSchema.safeParse(params.get('date') || now); const selected = parsed.success ? parsed.data : now;
-  const view: Period = params.get('view') === 'week' ? 'week' : 'month';
+  const view: Period = params.get('view') === 'week' ? 'week' : params.get('view') === 'month' ? 'month' : defaultView;
   const [start, end] = range(view, selected); const stats = aggregate(data, start, end, now);
   const first = view === 'week' ? parseISO(start) : startOfWeek(startOfMonth(parseISO(selected)), { weekStartsOn: 1 });
   const dates = Array.from({ length: view === 'week' ? 7 : 42 }, (_, i) => dateKey(addDays(first, i)));
   function change(date: string, nextView = view) { setParams({ date, view: nextView }); }
-  const selectedDay = daySummary(data, selected);
-  return <><PageTitle title="日历" description="查看每日训练、饮食和体重。" action={<Link className="button primary" to={`/training?date=${selected}`}><Plus size={18} />记录训练</Link>} />
+  return <div className="calendar-page"><PageTitle title="日历" description="每一份记录，都在积累进步。" action={<Link className="button primary" to={`/training?date=${selected}`}><Plus size={18} />记录训练</Link>} />
+    <DailyFocus date={selected} />
     <div className="metrics four"><Metric label="本期训练" value={stats.count} unit="次" detail={`${stats.trainingDays} 个训练日 · ${stats.rests} 个明确休息日`} /><Metric label="完整日均摄入" value={displayNumber(stats.average)} unit="千卡" detail={`${stats.completeDays} 天已记全 · ${stats.elapsedDays} 天已过去`} tone="orange" /><Metric label="正式训练组" value={stats.sets} unit="组" detail="力量训练 · 不含热身与草稿" tone="blue" /><Metric label="最新体重" value={displayNumber(stats.latestWeight ? stats.latestWeight.weightGrams / 1000 : null, 1)} unit="kg" detail={stats.latestWeight?.localDate || '本期暂无记录'} tone="purple" /></div>
-    <div className="calendar-layout"><section className="panel calendar-panel"><div className="calendar-heading"><div className="calendar-navigation"><h2>{periodTitle(view, selected)}</h2><button className="icon-button" aria-label="上一周期" onClick={() => change(shiftPeriod(view, selected, -1))}><ChevronLeft size={18} /></button><button className="icon-button" aria-label="下一周期" onClick={() => change(shiftPeriod(view, selected, 1))}><ChevronRight size={18} /></button></div><div className="calendar-controls"><button className="button small secondary" onClick={() => change(now)}>今天</button><div className="segmented"><button className={view === 'month' ? 'active' : ''} onClick={() => change(selected, 'month')}>月</button><button className={view === 'week' ? 'active' : ''} onClick={() => change(selected, 'week')}>周</button></div></div></div>
+    <div className="calendar-layout"><section className="panel calendar-panel"><div className="calendar-heading"><div className="calendar-navigation"><h2><span className="calendar-period-full">{periodTitle(view, selected)}</span><span className="calendar-period-compact">{periodTitle('month', selected)}</span></h2><button className="icon-button" aria-label="上一周期" onClick={() => change(shiftPeriod(view, selected, -1))}><ChevronLeft size={18} /></button><button className="icon-button" aria-label="下一周期" onClick={() => change(shiftPeriod(view, selected, 1))}><ChevronRight size={18} /></button></div><div className="calendar-controls"><button className="button small secondary" onClick={() => change(now)}>今天</button><div className="segmented"><button className={view === 'month' ? 'active' : ''} onClick={() => change(selected, 'month')}>月</button><button className={view === 'week' ? 'active' : ''} onClick={() => change(selected, 'week')}>周</button></div></div></div>
       <div className="weekday-row">{['一', '二', '三', '四', '五', '六', '日'].map(d => <span key={d}>周{d}</span>)}</div><div className={`calendar-grid ${view === 'week' ? 'week-view' : ''}`}>{dates.map(date => {
         const day = daySummary(data, date); const outside = view === 'month' && date.slice(0, 7) !== selected.slice(0, 7);
         const status = day.count ? `${day.count}次完成训练` : day.journal?.restDay ? '休息' : day.workouts.length ? '训练进行中' : '训练未记录';
-        return <button key={date} className={`calendar-day ${date === selected ? 'selected' : ''} ${date === now ? 'today' : ''} ${outside ? 'outside' : ''}`} aria-label={`${date}，${status}，饮食${day.diet === 'complete' ? '完整' : day.diet === 'partial' ? '部分记录' : '未记录'}${day.diet !== 'empty' ? `，${displayNumber(day.nutrition.energy.value)}千卡` : ''}`} aria-pressed={date === selected} onClick={() => change(date)}><span className="day-number">{Number(date.slice(8))}{date === now && <i />}</span><div className="day-content">{day.count > 0 && <span className="day-workout"><Dumbbell size={12} /><span>{[...new Set(day.workouts.filter(w => w.status === 'completed').flatMap(w => w.exercises.flatMap(e => e.exercise.primaryMuscles)))].slice(0, 2).join(' / ') || '训练'}{day.count > 1 && ` · ${day.count}`}</span></span>}{day.workouts.some(w => w.status === 'draft') && <span className="day-draft">进行中</span>}{day.journal?.restDay && <span className="day-rest"><Sprout size={12} /><span>休息</span></span>}{day.diet !== 'empty' && <span className="day-food"><i className={day.diet === 'complete' ? 'filled' : ''} /><span>{displayNumber(day.nutrition.energy.value)}<small> kcal</small></span></span>}</div></button>;
+        return <button key={date} className={`calendar-day ${date === selected ? 'selected' : ''} ${date === now ? 'today' : ''} ${outside ? 'outside' : ''}`} aria-label={`${date}，${status}，饮食${day.diet === 'complete' ? '完整' : day.diet === 'partial' ? '部分记录' : '未记录'}${day.diet !== 'empty' ? `，${displayNumber(day.nutrition.energy.value)}千卡` : ''}`} aria-pressed={date === selected} onClick={() => change(date)}><span className="day-number">{Number(date.slice(8))}{date === now && <i />}</span><span className="day-indicators" aria-hidden="true">{day.count > 0 && <i className="indicator-training" />}{day.workouts.some(w => w.status === 'draft') && <i className="indicator-draft" />}{day.journal?.restDay && <i className="indicator-rest" />}{day.diet !== 'empty' && <i className={`indicator-food ${day.diet === 'complete' ? 'filled' : ''}`} />}</span><div className="day-content">{day.count > 0 && <span className="day-workout"><Dumbbell size={12} /><span>{[...new Set(day.workouts.filter(w => w.status === 'completed').flatMap(w => w.exercises.flatMap(e => e.exercise.primaryMuscles)))].slice(0, 2).join(' / ') || '训练'}{day.count > 1 && ` · ${day.count}`}</span></span>}{day.workouts.some(w => w.status === 'draft') && <span className="day-draft">进行中</span>}{day.journal?.restDay && <span className="day-rest"><Sprout size={12} /><span>休息</span></span>}{day.diet !== 'empty' && <span className="day-food"><i className={day.diet === 'complete' ? 'filled' : ''} /><span>{displayNumber(day.nutrition.energy.value)}<small> kcal</small></span></span>}</div></button>;
       })}</div><div className="calendar-legend"><span><i className="legend-green" />完成训练</span><span><i className="legend-orange" />饮食已记全</span><span><i className="legend-outline" />饮食部分记录</span><span className="legend-note">空白表示未记录</span></div>
       <div className="calendar-bottom"><span>点击日期查看记录</span><Link to="/analytics">查看分析<ArrowRight size={15} /></Link></div></section><JournalPanel date={selected} compact /></div>
 
-  </>;
+  </div>;
 }
 function LeafMark() { return <Sprout size={17} />; }
 export function DayPage() {
