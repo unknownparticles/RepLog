@@ -14,7 +14,9 @@
 ## 发布位置
 
 - [仓库](https://github.com/unknownparticles/RepLog)
-- [站点](https://unknownparticles.github.io/RepLog/)
+- [站点](https://alunapp.cn/RepLog/)
 - [构建与发布](https://github.com/unknownparticles/RepLog/actions/workflows/pages.yml)
 
 发布工作流使用 Node.js 22，通过 npm ci、业务测试、版本校验及生产构建后部署。线上版本、构建提交及构建时间可在站点设置页的关于区域核对。
+
+初次推送的线上 Node.js 22 检查已通过。Pages 使用账号既有自定义域名，已启用 HTTPS；发布环境允许 master 分支和 v* 版本标签。默认 GitHub Pages 地址会跳转到上述正式站点。
