@@ -385,7 +385,7 @@ main { padding: 32px; width: 100%; max-width: 1500px; margin: 0 auto; flex: 1; m
 .boot p { font-size: 13px; line-height: 1.9; max-width: 500px; }
 .boot button { padding: 10px 18px; background: var(--text); color: var(--panel); border-radius: 5px; }
 .mobile-nav { display: none; }
-.mobile-brand, .daily-focus, .day-indicators, .calendar-period-compact { display: none; }
+.daily-focus, .day-indicators, .calendar-period-compact { display: none; }
 .set-list { display: grid; gap: 10px; }
 .set-card { display: grid; grid-template-columns: minmax(210px, .8fr) minmax(0, 1fr); align-items: center; gap: 20px; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
 .set-card-heading { display: flex; align-items: center; gap: 8px; min-width: 0; }

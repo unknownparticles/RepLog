@@ -23,6 +23,12 @@ function Equipment({ scene, exercise, from, to, motion }: { scene: Scene; exerci
     {scene === 'bench' && <path d={exercise.id === 'builtin-025' ? 'M17 75H52M22 75V102M47 75V102' : 'M48 74H132M56 74V102M124 74V102'} />}
     {scene === 'incline' && <path d="M49 80L121 33M51 81V102M108 43V102M46 102H116" />}
     {scene === 'seat' && <path d="M58 71H103M62 71V101M98 71V101M59 70V39" />}
+    {exercise.equipment.some(name => name.startsWith('悍马')) && <><path d="M136 102V20M126 102H148M128 80H144" /><Segment a={[136,27]} b={from.rh} endB={to.rh} motion={motion} /><Segment a={[130,33]} b={from.lh} endB={to.lh} motion={motion} /><circle cx="136" cy="78" r="7" /></>}
+    {exercise.equipment.includes('胸托T杠机') && <path d="M40 101L72 60M64 60H81M60 102H126M119 102V70" />}
+    {exercise.equipment.includes('腰带深蹲机') && <><path d="M43 104H125M43 104V62H57" /><Segment a={from.hip} b={[80,104]} endA={to.hip} motion={motion} /></>}
+    {exercise.equipment.includes('钟摆深蹲机') && <path d="M35 102V12H124M38 12L85 36M29 102H49" />}
+    {scene === 'romanChair' && <path d="M47 100L78 66H89M75 67L107 102M44 102H116" />}
+    {scene === 'ski' && <><path d="M143 102V7H120M136 102H151" /><Segment a={[127,9]} b={from.rh} endB={to.rh} motion={motion} /><Segment a={[119,9]} b={from.lh} endB={to.lh} motion={motion} /></>}
     {scene === 'pulldown' && <><path d="M19 101V9H141V101M58 74H96M64 74V101M92 74V101" /><Segment a={[80,9]} b={middle(from.lh,from.rh)} endB={middle(to.lh,to.rh)} motion={motion} /><Segment a={from.lh} b={from.rh} endA={to.lh} endB={to.rh} motion={motion} /></>}
     {scene === 'pullup' && <><path d="M33 102V13H127V102M26 102H42M119 102H137" />{exercise.mode === 'assisted' && <path d="M27 93H48V65H34M33 70H44M33 77H44M33 84H44" />}</>}
     {scene === 'dip' && <path d="M39 63H61M99 63H121M49 63V103M111 63V103" />}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { equipmentCatalog, filterExercises } from '../src/domain/catalog';
+import { equipmentCatalog, filterExercises, matchesEquipment } from '../src/domain/catalog';
 import { exerciseSchema } from '../src/domain/model';
 import { seedExercises } from '../src/domain/seeds';
 
@@ -35,5 +35,19 @@ describe('动作和器械目录', () => {
     expect(filterExercises(seedExercises, { query: 'BENCH PRESS', muscles: ['手臂'] }).some(e => e.name === '杠铃卧推')).toBe(false);
     expect(filterExercises(seedExercises, { query: 'BENCH PRESS', muscles: ['手臂'], includeSecondary: true, equipment: ['杠铃'], type: 'strength' }).some(e => e.name === '杠铃卧推')).toBe(true);
     expect(filterExercises(seedExercises, { query: 'BENCH PRESS', type: 'cardio' })).toHaveLength(0);
+  });
+  it('悍马机与常见固定器械均有对应动作，品牌别名可直接搜索', () => {
+    const hammer = equipmentCatalog.filter(item => matchesEquipment(item, '悍马机'));
+    expect(hammer.map(item => item.name)).toEqual(['悍马推胸机', '悍马划船机', '悍马高位划船机', '悍马高位下拉机', '悍马推肩机']);
+    for (const item of equipmentCatalog.slice(30)) {
+      expect(seedExercises.some(exercise => exercise.equipment.includes(item.name))).toBe(true);
+    }
+    const byChinese = filterExercises(seedExercises, { query: '悍马机' });
+    const byEnglish = filterExercises(seedExercises, { query: 'HAMMER-STRENGTH' });
+    expect(byChinese.map(item => item.id)).toEqual(byEnglish.map(item => item.id));
+    expect(byChinese.map(item => item.name)).toContain('悍马单臂划船');
+    expect(filterExercises(seedExercises, { query: '腰带蹲' }).map(item => item.name)).toEqual(['腰带深蹲']);
+    expect(filterExercises(seedExercises, { query: '悍马机', equipment: ['悍马推肩机'] }).map(item => item.name)).toEqual(['悍马推肩']);
+    expect(filterExercises(seedExercises, { equipment: ['悍马划船机'], equipmentMatch: 'available', equipmentActive: true }).some(item => item.name === '悍马推肩')).toBe(false);
   });
 });

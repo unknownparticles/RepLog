@@ -59,7 +59,7 @@ export function App() {
       <span className="nav-caption">资料库</span><nav aria-label="资料库"><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/exercises"><Dumbbell size={18} />动作库</NavLink><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/equipment"><Settings size={18} />器械库</NavLink><NavLink className={({ isActive }) => `nav-item ${isActive ? 'selected' : ''}`} to="/calories"><Calculator size={18} />热量计算</NavLink></nav>
       <NavLink to="/settings#about" className="sidebar-version">RepLog <span>v{__APP_VERSION__}</span></NavLink>
     </aside>
-    <div className="main-shell"><div className="topbar"><MobileBrand /><span className="topbar-title">RepLog <span>/</span> {navigation.find(item => item.to === active)?.label || '记录'}</span><div className="topbar-right"><span className="storage-status">{online ? <Check size={14} /> : <CloudOff size={14} />}{offlineReady || cached ? '离线可用 · 本地保存' : registerError ? '离线准备失败' : '本地保存'}</span><NavLink to="/settings" className="avatar" aria-label="我的设置">我</NavLink></div></div>
+    <div className="main-shell"><div className="topbar"><span className="topbar-title">RepLog <span>/</span> {navigation.find(item => item.to === active)?.label || '记录'}</span><div className="topbar-right"><span className="storage-status">{online ? <Check size={14} /> : <CloudOff size={14} />}{offlineReady || cached ? '离线可用 · 本地保存' : registerError ? '离线准备失败' : '本地保存'}</span><NavLink to="/settings" className="avatar" aria-label="我的设置">我</NavLink></div></div>
       {needRefresh && <div className="update-banner"><RefreshCw size={16} /><span>新版本已准备好。请先保存当前输入，再更新。</span><button onClick={() => { if (window.confirm('确定已保存当前输入？更新会重新载入页面，已保存的训练草稿将保留。')) void updateServiceWorker(true); }}>更新应用</button></div>}
       <main><Suspense fallback={<div className="empty">正在准备分析图表…</div>}><Routes key={data.generation}>
         <Route path="/" element={<Navigate to="/calendar" replace />} /><Route path="/calendar" element={<CalendarPage />} /><Route path="/day/:date" element={<DayPage />} />
@@ -72,5 +72,3 @@ export function App() {
     {toast && <div className={`toast ${toast.error ? 'error' : ''}`} role={toast.error ? 'alert' : 'status'}>{toast.error ? <Activity size={18} /> : <Check size={18} />}<span>{toast.text}</span><button onClick={() => setToast(null)} aria-label="关闭提示"><X size={16} /></button></div>}
   </div></AppContext.Provider>;
 }
-
-function MobileBrand() { return <NavLink className="mobile-brand" to="/calendar" aria-label="RepLog 首页"><Activity size={20} strokeWidth={2.6} />RepLog</NavLink>; }

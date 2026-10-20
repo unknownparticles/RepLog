@@ -43,21 +43,12 @@ function DailyFocus({ date }: { date: string }) {
   const { data } = useApp();
   const [quickEntry, setQuickEntry] = useState<'meal' | 'weight' | null>(null);
   const day = daySummary(data, date);
-  const isToday = date === today(data.profile.timeZone);
   const draft = data.workouts.find(workout => workout.status === 'draft');
-  const title = draft ? '接着上次，继续练' : day.count ? `已完成 ${day.count} 次训练` : day.journal?.restDay ? '好好休息，也是进步' : isToday ? '今天的进步，从这里开始' : '记录这一天的进步';
   return <>
     <section className="daily-focus" aria-label="快捷记录">
-      <div className="daily-training">
-        <div className="daily-focus-heading"><span>{isToday ? '今天' : '当日'} · {format(parseISO(date), 'M 月 d 日')}</span><Dumbbell size={22} /></div>
-        <h2>{title}</h2>
-        <p>{draft ? `${draft.localDate} · ${draft.name}` : day.journal?.restDay ? '恢复状态，准备下一次出发。' : '记录每一组，看见自己的变化。'}</p>
-        <Link className="button" to={draft ? `/workouts/${draft.id}` : `/training?date=${date}`}><Play size={17} />{draft ? '继续训练' : '记录训练'}<ArrowRight size={17} /></Link>
-      </div>
-      <div className="quick-entries">
-        <button onClick={() => setQuickEntry('meal')}><span className="quick-icon meal"><Utensils size={20} /></span><span><strong>记录餐食</strong><small>吃得好，也记得好</small></span><Plus size={17} /></button>
-        <button onClick={() => setQuickEntry('weight')}><span className="quick-icon weight"><Scale size={20} /></span><span><strong>记录体重</strong><small>{day.weight ? `${displayNumber(day.weight.weightGrams / 1000, 1)} kg · 已记录` : '关注长期的变化'}</small></span><Plus size={17} /></button>
-      </div>
+      {draft && <Link className="button secondary" to={`/workouts/${draft.id}`} title={`${draft.localDate} · ${draft.name}`}><Play size={15} />继续训练</Link>}
+      <button className="button secondary" onClick={() => setQuickEntry('meal')}><Utensils size={15} />记录餐食</button>
+      <button className="button secondary" onClick={() => setQuickEntry('weight')}><Scale size={15} />记录体重{day.weight && <small>{displayNumber(day.weight.weightGrams / 1000, 1)} kg</small>}</button>
     </section>
     {quickEntry === 'meal' && <MealDialog date={date} onClose={() => setQuickEntry(null)} />}
     {quickEntry === 'weight' && <WeightDialog date={date} onClose={() => setQuickEntry(null)} />}
@@ -73,7 +64,7 @@ export function CalendarPage() {
   const first = view === 'week' ? parseISO(start) : startOfWeek(startOfMonth(parseISO(selected)), { weekStartsOn: 1 });
   const dates = Array.from({ length: view === 'week' ? 7 : 42 }, (_, i) => dateKey(addDays(first, i)));
   function change(date: string, nextView = view) { setParams({ date, view: nextView }); }
-  return <div className="calendar-page"><PageTitle title="日历" description="每一份记录，都在积累进步。" action={<Link className="button primary" to={`/training?date=${selected}`}><Plus size={18} />记录训练</Link>} />
+  return <div className="calendar-page"><PageTitle title="日历" description="查看每日训练、饮食和体重。" action={<Link className="button primary" to={`/training?date=${selected}`}><Plus size={18} />记录训练</Link>} />
     <DailyFocus date={selected} />
     <div className="metrics four"><Metric label="本期训练" value={stats.count} unit="次" detail={`${stats.trainingDays} 个训练日 · ${stats.rests} 个明确休息日`} /><Metric label="完整日均摄入" value={displayNumber(stats.average)} unit="千卡" detail={`${stats.completeDays} 天已记全 · ${stats.elapsedDays} 天已过去`} tone="orange" /><Metric label="正式训练组" value={stats.sets} unit="组" detail="力量训练 · 不含热身与草稿" tone="blue" /><Metric label="最新体重" value={displayNumber(stats.latestWeight ? stats.latestWeight.weightGrams / 1000 : null, 1)} unit="kg" detail={stats.latestWeight?.localDate || '本期暂无记录'} tone="purple" /></div>
     <div className="calendar-layout"><section className="panel calendar-panel"><div className="calendar-heading"><div className="calendar-navigation"><h2><span className="calendar-period-full">{periodTitle(view, selected)}</span><span className="calendar-period-compact">{periodTitle('month', selected)}</span></h2><button className="icon-button" aria-label="上一周期" onClick={() => change(shiftPeriod(view, selected, -1))}><ChevronLeft size={18} /></button><button className="icon-button" aria-label="下一周期" onClick={() => change(shiftPeriod(view, selected, 1))}><ChevronRight size={18} /></button></div><div className="calendar-controls"><button className="button small secondary" onClick={() => change(now)}>今天</button><div className="segmented"><button className={view === 'month' ? 'active' : ''} onClick={() => change(selected, 'month')}>月</button><button className={view === 'week' ? 'active' : ''} onClick={() => change(selected, 'week')}>周</button></div></div></div>

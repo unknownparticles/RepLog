@@ -1,12 +1,13 @@
 import { expect, test } from '@playwright/test';
+import { seedExercises } from '../../src/domain/seeds';
 
 test('全部动作展示线条缩略图，并支持动画、静态和减少动态效果', async ({ page, context }) => {
   const images: string[] = [];
   page.on('request', request => { if (/\.(?:jpg|png)(?:\?|$)/.test(new URL(request.url()).pathname)) images.push(request.url()); });
   await page.goto('./#/exercises');
   const rows = page.locator('.exercise-row');
-  await expect(rows).toHaveCount(84);
-  await expect(page.locator('.exercise-row .exercise-art')).toHaveCount(84);
+  await expect(rows).toHaveCount(seedExercises.length);
+  await expect(page.locator('.exercise-row .exercise-art')).toHaveCount(seedExercises.length);
   await expect(page.locator('.exercise-row img')).toHaveCount(0);
   const first = rows.first().locator('.exercise-art');
   await expect(first).toHaveAttribute('data-animated','true');
@@ -23,7 +24,7 @@ test('全部动作展示线条缩略图，并支持动画、静态和减少动�
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
   await context.setOffline(true);
   await page.reload();
-  await expect(page.locator('.exercise-row .exercise-art')).toHaveCount(84);
+  await expect(page.locator('.exercise-row .exercise-art')).toHaveCount(seedExercises.length);
   await expect(page.getByRole('img',{name:'俯卧撑动作线稿',exact:true})).toBeAttached();
   await context.setOffline(false);
   // 应用图标可能由浏览器加载；动作缩略图不请求照片或视频海报。

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Copy, Dumbbell, Plus, Search, SlidersHorizontal, Star, X, Check, Play } from 'lucide-react';
 import { Actions, Button, Empty, Field, Modal, MultiToggle, PageTitle, Segmented, submit, useApp, value } from '../components/ui';
-import { equipmentCatalog, equipmentGroups, filterExercises, type ExerciseFilter } from '../domain/catalog';
+import { equipmentCatalog, equipmentGroups, filterExercises, matchesEquipment, type ExerciseFilter } from '../domain/catalog';
 import { equipmentList, exerciseSchema, meta, modeLabels, muscles, type Exercise } from '../domain/model';
 import { saveExercise } from '../db/commands';
 import { ExerciseDemo } from '../components/ExerciseDemo';
@@ -91,7 +91,7 @@ export function ExercisesPage() {
 
 export function EquipmentPage() {
   const { data } = useApp(); const [query, setQuery] = useState(''); const [group, setGroup] = useState('all');
-  const entries = equipmentCatalog.filter(item => (group === 'all' || item.group === group) && [item.name, ...item.aliases].some(text => text.toLowerCase().includes(query.trim().toLowerCase())));
+  const entries = equipmentCatalog.filter(item => (group === 'all' || item.group === group) && matchesEquipment(item, query));
   return <><PageTitle title="器械库" description={`${equipmentCatalog.length} 类器械 · 查看使用说明和对应动作`} action={<Link className="button secondary" to="/exercises">动作库<ArrowRight size={16} /></Link>} /><LibraryNav current="equipment" /><div className="toolbar"><label className="search"><Search size={17} /><input aria-label="搜索器械" value={query} placeholder="搜索器械名称或英文名" onChange={event => setQuery(event.target.value)} /></label></div><Segmented label="器械分类" value={group} onChange={setGroup} items={[{ value: 'all', label: '全部' }, ...equipmentGroups.map(value => ({ value, label: value }))]} /><div className="equipment-library">{entries.map(item => {
     const exercises = data.exercises.filter(e => !e.archived && e.equipment.includes(item.name));
     return <article className="equipment-row" key={item.name}><div className="equipment-row-heading"><h2>{item.name}</h2><span className="badge">{item.group}</span></div><span className="exercise-english">{item.aliases[0]}</span><p>{item.description}</p><Link className="text-button" to={`/exercises?equipment=${encodeURIComponent(item.name)}`}>{exercises.length ? `${exercises.length} 个相关动作` : '暂无内置动作 · 可自建'}<ArrowRight size={14} /></Link></article>;

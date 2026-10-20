@@ -3,7 +3,7 @@ import type { Exercise } from './model';
 export type Point = [number, number];
 export type Joint = 'head' | 'shoulder' | 'hip' | 'le' | 'lh' | 're' | 'rh' | 'lk' | 'lf' | 'rk' | 'rf';
 export type Pose = Record<Joint, Point>;
-export type Scene = 'floor' | 'bench' | 'incline' | 'seat' | 'cable' | 'pulldown' | 'pullup' | 'dip' | 'rack' | 'legpress' | 'bike' | 'rower' | 'treadmill' | 'elliptical' | 'stairs' | 'rope' | 'wheel';
+export type Scene = 'floor' | 'bench' | 'incline' | 'seat' | 'cable' | 'pulldown' | 'pullup' | 'dip' | 'rack' | 'legpress' | 'bike' | 'rower' | 'treadmill' | 'elliptical' | 'stairs' | 'rope' | 'wheel' | 'romanChair' | 'ski';
 export type Illustration = { from: Pose; to: Pose; scene: Scene; still?: boolean; name: string };
 const front: Pose = { head:[80,19], shoulder:[80,33], hip:[80,66], le:[65,48], lh:[63,69], re:[95,48], rh:[97,69], lk:[70,83], lf:[66,102], rk:[90,83], rf:[94,102] };
 const side: Pose = { head:[91,20], shoulder:[87,34], hip:[79,66], le:[92,50], lh:[94,68], re:[83,51], rh:[84,69], lk:[75,85], lf:[86,102], rk:[85,84], rf:[97,102] };
@@ -81,6 +81,23 @@ const definitions: Array<[number[], Illustration]> = [
   [[84],scene('腹肌轮',kneeling,pose(kneeling,{head:[120,65],shoulder:[110,76],hip:[72,80],le:[125,84],lh:[142,98],re:[117,86],rh:[135,98]}),'wheel')],
 ];
 export const illustrationRegistry = new Map<string, Illustration>(definitions.flatMap(([ids,drawing]) => ids.map(id => [`builtin-${String(id).padStart(3,'0')}`,drawing] as const)));
+const machineDrawings: Array<[number[], Illustration]> = [
+  [[85,86,87], {...illustrationRegistry.get('builtin-040')!, name: '分动器械推胸'}],
+  [[88,93,98,108], {...seatedRow, name: '胸托器械划船', scene: 'seat'}],
+  [[89], {...pulldown, name: '高位器械划船', scene: 'seat'}],
+  [[90,91], {...pulldown, name: '分动器械下拉', scene: 'seat'}],
+  [[92,95], {...shoulder, name: '器械推肩', scene: 'seat'}],
+  [[94], pulldown], [[96], {...lateral, name: '器械侧平举', scene: 'seat'}],
+  [[97], scene('器械直臂后拉', pose(sitting,{le:[92,16],lh:[112,6],re:[82,22],rh:[101,12]}), pose(sitting,{le:[94,57],lh:[110,76],re:[84,62],rh:[99,81]}),'seat')],
+  [[99,100], {...squat, name: '器械深蹲'}], [[101], hipThrust],
+  [[102], scene('器械后踢腿', side, pose(side,{rk:[61,72],rf:[36,78]}),'seat')],
+  [[103], scene('站姿屈膝', side, pose(side,{rf:[61,69]}),'seat')],
+  [[104], {...deadlift, name: '罗马椅髋伸展', scene: 'romanChair'}],
+  [[105], scene('器械卷腹', sitting, pose(sitting,{head:[99,37],shoulder:[94,49],le:[105,59],lh:[113,76],re:[98,66],rh:[104,82]}),'seat')],
+  [[106], scene('滑雪推进', pose(side,{le:[104,17],lh:[117,6],re:[96,22],rh:[108,11]}), hinge,'ski')],
+  [[107], {...cycling, name: '风阻骑行'}],
+];
+for (const [ids, drawing] of machineDrawings) for (const id of ids) illustrationRegistry.set(`builtin-${String(id).padStart(3,'0')}`, drawing);
 const custom = scene('自定义动作',front,front,'floor',true);
 export function illustrationFor(exercise: Pick<Exercise,'id'|'builtin'>): Illustration {
   return exercise.builtin ? illustrationRegistry.get(exercise.id) || custom : custom;

@@ -1,5 +1,6 @@
 import { meta, type Exercise } from './model';
 import { additionalExercises, guides, refinedEquipment } from './exercise-guides';
+import { machineExercises } from './machine-exercises';
 type Definition = [string, string[], string[], Exercise['mode'], string?, string[]?];
 const definitions: Definition[] = [
   ['杠铃卧推', ['胸'], ['杠铃', '训练凳'], 'weighted', '双脚踩稳，肩胛保持稳定，控制下放。', ['肩', '手臂']],
@@ -24,7 +25,7 @@ const definitions: Definition[] = [
   ['户外跑步', ['有氧'], [], 'cardio'], ['跑步机', ['有氧'], ['跑步机'], 'cardio'],
   ['室内单车', ['有氧'], ['单车'], 'cardio'], ['划船机', ['有氧'], ['划船机'], 'cardio'],
 ];
-export const SEED_VERSION = '2';
+export const SEED_VERSION = '3';
 const originals: Exercise[] = definitions.map(([name, primaryMuscles, equipment, mode, instructions, secondaryMuscles], index) => ({
   ...meta(`builtin-${String(index + 1).padStart(3, '0')}`), name, primaryMuscles, equipment, mode,
   instructions: instructions || '选择可控制的强度，动作全程保持稳定，出现疼痛时停止。',
@@ -38,5 +39,9 @@ export const seedExercises: Exercise[] = [
   }),
   ...additionalExercises.map(([name, primaryMuscles, equipment, mode, english, secondaryMuscles, instructions], index) => ({
     ...meta(`builtin-${String(originals.length + index + 1).padStart(3, '0')}`), name, primaryMuscles, equipment, mode, aliases: [english], secondaryMuscles, instructions, optionalEquipment: [], builtin: true, favorite: false, archived: false,
+  })),
+  ...machineExercises.map(([id, name, primaryMuscles, equipment, mode, english, secondaryMuscles, instructions]) => ({
+    ...meta(`builtin-${String(id).padStart(3, '0')}`), name, primaryMuscles, equipment, mode, aliases: [english], secondaryMuscles, instructions,
+    optionalEquipment: [], builtin: true, favorite: false, archived: false,
   })),
 ];

@@ -64,3 +64,30 @@ test('训练选择器支持嵌套弹窗，手机动作与器械页面无横向�
   }
   await page.screenshot({ path: 'test-results/library-mobile.png' });
 });
+
+test('手机搜索悍马系列、按具体机型筛选并完成训练记录', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('./#/equipment');
+  await page.getByLabel('搜索器械').fill('悍马机');
+  await expect(page.locator('.equipment-row')).toHaveCount(5);
+  const chest = page.locator('.equipment-row').filter({ has: page.getByRole('heading', { name: '悍马推胸机', exact: true }) });
+  await chest.getByRole('link', { name: '3 个相关动作' }).click();
+  await expect(page.getByLabel('使用器械')).toHaveValue('悍马推胸机');
+  await expect(page.locator('.exercise-row')).toHaveCount(3);
+  await page.getByLabel('使用器械').selectOption('腰带深蹲机');
+  await expect(page.locator('.exercise-row')).toHaveCount(1);
+  await expect(page.getByRole('button', { name: '腰带深蹲', exact: true })).toBeVisible();
+  await page.goto('./#/training');
+  await page.getByRole('button', { name: '开始训练', exact: true }).click();
+  await page.getByRole('button', { name: '选择动作', exact: true }).click();
+  await page.getByLabel('搜索动作').fill('HAMMER-STRENGTH');
+  await expect(page.locator('.exercise-row')).toHaveCount(9);
+  await page.getByRole('button', { name: '加入悍马平板推胸', exact: true }).click();
+  await expect(page.getByRole('img', { name: '悍马平板推胸动作线稿', exact: true })).toBeVisible();
+  await page.getByLabel('第1组重量').fill('40');
+  await page.getByLabel('第1组次数').fill('10');
+  await page.getByRole('button', { name: '第1组标记完成', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: '已保存在本地' })).toBeVisible();
+  await page.getByRole('button', { name: '完成训练', exact: true }).click();
+  await expect(page.locator('.workout-history-row')).toHaveCount(1);
+});
