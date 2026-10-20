@@ -7,3 +7,7 @@ exercise-media-sources.json 来自 2026 年 10 月 20 日对 wger 公开视频�
 wger 动作 475 和 477 分别被标为普通引体和器械引体，但来源片段及转码结果相同，画面未清楚显示辅助方式，因此都未接入。不能仅依据数据库名称将该片段用于两种训练模式。
 
 此文件保存来源元数据，不包含原始大视频；具体发布文件及完整署名见 public/media/exercises。
+
+## 食谱来源
+
+`recipes/HowToCook/` 保存本次采用的八篇原始 Markdown 与 Unlicense，仅保留文本原文用于核对。原文图片引用按原样保存，不将图片引入运行应用。`recipes/manifest.json` 固定上游提交并记录原文 SHA-256；做法、克重和营养估算的实际改编见 `src/domain/recipes.ts` 与 `docs/fitness-recipes.md`。

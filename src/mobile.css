@@ -105,3 +105,9 @@
   .calendar-controls { width: 100%; justify-content: space-between; }
   .workout-meta, .modal .form-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+@media (max-width: 760px) {
+  .recipe-grid { grid-template-columns: minmax(0, 1fr); }
+  .recipe-filters { flex-wrap: wrap; overflow: visible; }
+  .recipe-filters button { min-height: 44px; }
+}

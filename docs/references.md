@@ -38,3 +38,9 @@ RepLog 独立设计前端 PWA，借鉴以上项目的产品组织方式。首版
 - [Waistline README 与 License](https://github.com/davidhealey/waistline/blob/master/README.md#license)
 
 未复用上述项目源码或食物数据库。v0.3.0 使用逐项授权为 CC BY-SA 4.0 的 wger 视频及衍生海报，完整来源和修改说明见 [动作示范](exercise-media.md)。
+
+## 健身食谱引入（2026 年 10 月 21 日）
+
+实际采用 [Anduin2017/HowToCook](https://github.com/Anduin2017/HowToCook) 的八篇菜谱，固定提交 `0e106eea348c734fe1586f781202994439cf98a5`，授权为 Unlicense。不是专门的健身营养数据库，选取其中适用的早餐、蛋白配菜和蔬菜，明确改编克重、油盐及制作步骤；原文与逐文件校验保存在 `resources/recipes/`。实际运行内置本地结构化食谱，不需要调用上游接口。
+
+同时检查了 MIT 项目 [Sosiggg/Fitness-Feast](https://github.com/Sosiggg/Fitness-Feast) 的食谱页面，其示例热量与营养展示有不一致，且包含站外素材，因此本次不采用其数据或素材。HowToCook 上游部分估算也不一致，本次统一按本地食材表重新计算。来源、估算范围与验收方法见 [健身食谱](fitness-recipes.md)。

@@ -31,7 +31,7 @@ export default defineConfig({
       ],
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', 'media/exercises/manifest.json', 'media/exercises/ATTRIBUTION.md'],
+      globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', 'media/exercises/manifest.json', 'media/exercises/ATTRIBUTION.md', 'recipes/ATTRIBUTION.md', 'recipes/LICENSE.txt'],
       navigateFallback: 'index.html', cleanupOutdatedCaches: true, clientsClaim: true,
       maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       runtimeCaching: [{

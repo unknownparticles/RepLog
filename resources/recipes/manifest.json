@@ -1,0 +1,40 @@
+{
+  "repository": "https://github.com/Anduin2017/HowToCook",
+  "commit": "0e106eea348c734fe1586f781202994439cf98a5",
+  "license": "Unlicense",
+  "verifiedOn": "2026-10-21",
+  "files": [
+    {
+      "path": "dishes/meat_dish/凉拌鸡丝/凉拌鸡丝.md",
+      "sha256": "9e61031ea3b77c4686b05fb40bf54f50928c9ff807acd81d9a1dcdf3b1345c18"
+    },
+    {
+      "path": "dishes/breakfast/燕麦鸡蛋饼.md",
+      "sha256": "d006d502a2ee2da36da4a6a9252180b7bb4a5fced5bbb8efc5cce42439ae70d6"
+    },
+    {
+      "path": "dishes/breakfast/牛奶燕麦.md",
+      "sha256": "4eb994012d5ab06ab8b23029746514b442998e64ce8a4236d6d5caabc87fe16e"
+    },
+    {
+      "path": "dishes/staple/酱拌荞麦面/酱拌荞麦面.md",
+      "sha256": "ee253318dee83882497b63fa08ec1c6663de135c2e69da5fd0eddd24471f4b72"
+    },
+    {
+      "path": "dishes/vegetable_dish/蒜蓉西兰花.md",
+      "sha256": "59a8c2a875182a8a59dd253e58a7c26c66fb03448891bb025ec0189e4baab940"
+    },
+    {
+      "path": "dishes/aquatic/白灼虾/白灼虾.md",
+      "sha256": "6296adcbaaeb2ecd0280c60b22c91d1c4a97b888791320942e4787b9d58f9b43"
+    },
+    {
+      "path": "dishes/vegetable_dish/鸡蛋羹/鸡蛋羹.md",
+      "sha256": "315fa22701bdabd3a35de3546f3f3a08fe325ff75b5dc70c1f519d5e8254d248"
+    },
+    {
+      "path": "dishes/aquatic/清蒸鲈鱼/清蒸鲈鱼.md",
+      "sha256": "fe51b4171a90f9f8f2b194f24ac8da7e1966518ca7f437935418bf339a21ff1a"
+    }
+  ]
+}
