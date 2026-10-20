@@ -2,7 +2,24 @@
 
 以日历串联训练与饮食的健身 PWA：每天吃了什么、练了什么，以及长期变化趋势。
 
-当前交付为 **OpenSpec 设计方案**，尚未编写应用代码。默认中文、移动端优先、无需登录、本地离线存储，体重以千克、重量以千克、能量以千卡显示。
+当前已开始实施 **v0.1.0**，提供可运行的日历、训练、饮食、分析和设置页面。默认中文、移动端优先、无需登录，数据保存在当前浏览器。关于页明确显示应用版本与构建信息。全部规格验收进度见实施任务，当前尚未发布线上站点。
+
+## 运行与部署
+
+使用 Node.js 22 LTS（至少 22.12.0）或受支持的更高 LTS。
+
+```sh
+npm ci
+npm run dev
+```
+
+```sh
+npm test
+npm run build
+npm run preview
+```
+
+生产版本支持离线使用；开发服务用于开发预览。部署目标为 **GitHub Pages**，使用哈希路由，自动适配项目仓库子路径。详细操作见 [Pages 部署与版本规则](docs/github-pages.md)，发布内容见 [版本记录](CHANGELOG.md)。
 
 ## 文档入口
 
@@ -30,4 +47,4 @@ npx --yes @fission-ai/openspec@latest validate design-fitness-pwa --strict --no-
 npx --yes @fission-ai/openspec@latest status --change design-fitness-pwa
 ```
 
-`openspec/changes/design-fitness-pwa/` 保存本次待实施方案；`openspec/specs/` 暂留空，待开发完成并归档变更时形成正式能力基线。文档齐备不代表应用已经实现。
+`openspec/changes/design-fitness-pwa/` 保存本次方案及实施进度；`openspec/specs/` 暂留空，待全部首版验收完成并归档变更时形成正式能力基线。任务仅在对应实现及验证完成后勾选。
