@@ -22,6 +22,13 @@ RepLog 独立设计前端 PWA，借鉴以上项目的产品组织方式。首版
 
 ## 可复查来源
 
+### 界面组件与布局
+
+- [shadcn/ui](https://github.com/shadcn-ui/ui)：MIT；参考中性色设计、紧凑数据列表、表单与筛选布局。未复制示例应用或整站模板。
+- [Radix Primitives](https://github.com/radix-ui/primitives)：MIT；实际引入 Dialog、Toggle Group、Tooltip 包，处理模态语义、焦点约束、键盘筛选和提示。样式由 RepLog 自行定义。
+
+本轮通过项目默认分支 README 核对定位与许可。动作文字独立编写，未引入未经核实的图片或视频。
+
 - [wger README 与 License](https://github.com/wger-project/wger/blob/master/README.md#license)
 - [Workout.lol README](https://github.com/workout-lol/workout-lol/blob/main/README.md) 与 [LICENSE](https://github.com/workout-lol/workout-lol/blob/main/LICENSE)
 - [Waistline README 与 License](https://github.com/davidhealey/waistline/blob/master/README.md#license)

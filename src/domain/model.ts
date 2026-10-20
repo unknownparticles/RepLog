@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { isValid, parseISO, format } from 'date-fns';
+import { equipmentCatalog } from './catalog';
 
 export const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
   const date = parseISO(value);
@@ -87,7 +88,7 @@ export type Weight = z.infer<typeof weightSchema>;
 export type Template = z.infer<typeof templateSchema>;
 export type Snapshot = { profile: Profile; exercises: Exercise[]; foods: Food[]; workouts: Workout[]; meals: Meal[]; journals: Journal[]; goals: Goal[]; weights: Weight[]; templates: Template[]; generation: string };
 export const muscles = ['胸', '背', '肩', '腿', '臀', '手臂', '核心', '有氧'];
-export const equipmentList = ['哑铃', '杠铃', '训练凳', '深蹲架', '绳索器械', '固定器械', '单杠', '双杠', '弹力带', '跑步机', '单车', '划船机'];
+export const equipmentList: string[] = equipmentCatalog.map(item => item.name);
 export const modeLabels: Record<Exercise['mode'], string> = { weighted: '负重 × 次数', bodyweight: '徒手 × 次数', assisted: '辅助 × 次数', timed: '力量计时', cardio: '有氧时长' };
 export function meta(id: string = crypto.randomUUID()) { const now = new Date().toISOString(); return { id, createdAt: now, updatedAt: now, revision: 1 }; }
 export function blankSet(): WorkoutSet { return { id: crypto.randomUUID(), kind: 'work', completed: false, reps: null, loadGrams: null, assistanceGrams: null, durationSeconds: null, distanceMeters: null, rpe: null }; }

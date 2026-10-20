@@ -1,0 +1,66 @@
+import { expect, test } from '@playwright/test';
+
+test('器械库、动作说明、双模式器械筛选和自定义动作', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  await page.goto('./#/exercises');
+  await expect(page.getByRole('heading', { name: '动作库', exact: true })).toBeVisible();
+  await page.screenshot({ path: 'test-results/exercises-desktop.png' });
+  await page.goto('./#/equipment');
+  await expect(page.getByRole('heading', { name: '器械库', exact: true })).toBeVisible();
+  await page.getByLabel('搜索器械').fill('smith');
+  await expect(page.locator('.equipment-row')).toHaveCount(1);
+  await page.getByRole('link', { name: /个相关动作/ }).click();
+  await expect(page.getByLabel('使用器械')).toHaveValue('史密斯机');
+  await page.getByRole('button', { name: '史密斯卧推', exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText('Smith Bench Press');
+  await expect(page.locator('.exercise-guide li')).toHaveCount(3);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button', { name: '重置', exact: true }).click();
+  await page.getByLabel('搜索动作').fill('杠铃卧推');
+  await page.getByRole('button', { name: '按现有器械匹配', exact: true }).click();
+  await page.getByRole('checkbox', { name: '杠铃', exact: true }).check();
+  await page.getByRole('button', { name: '显示 0 个动作', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '没有符合条件的动作' })).toBeVisible();
+  await page.getByRole('button', { name: '现有器械 · 1 项', exact: true }).click();
+  await page.getByRole('checkbox', { name: '训练凳', exact: true }).check();
+  await page.getByRole('button', { name: '显示 1 个动作', exact: true }).click();
+  await expect(page.locator('.exercise-row')).toHaveCount(1);
+  await page.getByRole('button', { name: '新建动作', exact: true }).click();
+  await page.getByLabel('动作名称').fill('个人弹力带划船');
+  await page.getByLabel('别名 / 英文名称').fill('My Band Row');
+  await page.getByRole('toolbar', { name: '主要肌群', exact: true }).getByRole('button', { name: '背', exact: true }).click();
+  await page.getByRole('toolbar', { name: '辅助肌群', exact: true }).getByRole('button', { name: '手臂', exact: true }).click();
+  await page.getByRole('dialog').getByRole('checkbox', { name: '弹力带', exact: true }).check();
+  await page.getByLabel('动作说明').fill('检查固定点\n向后划动\n控制回放');
+  await page.getByRole('button', { name: '保存动作', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button', { name: '重置', exact: true }).click();
+  await page.getByLabel('搜索动作').fill('my band');
+  await expect(page.locator('.exercise-row')).toHaveCount(1);
+  await page.getByRole('button', { name: '个人弹力带划船', exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText('手臂');
+  await expect(page.getByRole('dialog')).toContainText('弹力带');
+  expect(errors).toEqual([]);
+});
+
+test('训练选择器支持嵌套弹窗，手机动作与器械页面无横向溢出', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('./#/training');
+  await page.getByRole('button', { name: '开始训练', exact: true }).click();
+  await page.getByRole('button', { name: '选择动作', exact: true }).click();
+  await page.getByLabel('搜索动作').fill('杠铃卧推');
+  await page.getByRole('button', { name: '杠铃卧推', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '杠铃卧推', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: '选择训练动作', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: '加入杠铃卧推', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByText('等待保存…', { exact: true })).toBeHidden();
+  for (const route of ['exercises', 'equipment']) {
+    await page.goto(`./#/${route}`);
+    await expect(page.locator('main h1')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await page.screenshot({ path: 'test-results/library-mobile.png' });
+});

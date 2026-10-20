@@ -1,6 +1,6 @@
 import Dexie, { type Table } from 'dexie';
 import { meta, type Exercise, type Food, type Goal, type Journal, type Meal, type Profile, type Snapshot, type Template, type Weight, type Workout } from '../domain/model';
-import { seedExercises } from '../domain/seeds';
+import { seedExercises, SEED_VERSION } from '../domain/seeds';
 
 export class RepLogDB extends Dexie {
   profiles!: Table<Profile, string>;
@@ -25,10 +25,18 @@ export class RepLogDB extends Dexie {
 export const db = new RepLogDB();
 export async function initialize(database = db) {
   await database.transaction('rw', database.tables, async () => {
-    if (await database.profiles.count()) return;
-    await database.profiles.add({ ...meta('local'), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai', theme: 'system' });
-    await database.exercises.bulkAdd(structuredClone(seedExercises));
-    await database.metadata.put({ id: 'generation', value: crypto.randomUUID() });
+    if (!await database.profiles.count()) {
+      await database.profiles.add({ ...meta('local'), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Shanghai', theme: 'system' });
+      await database.metadata.put({ id: 'generation', value: crypto.randomUUID() });
+    }
+    if ((await database.metadata.get('exercise-seed-version'))?.value !== SEED_VERSION) {
+      for (const seed of seedExercises) {
+        const existing = await database.exercises.get(seed.id);
+        if (existing && !existing.builtin) continue;
+        await database.exercises.put(existing ? { ...seed, createdAt: existing.createdAt, favorite: existing.favorite, archived: existing.archived, revision: existing.revision + 1, updatedAt: new Date().toISOString() } : structuredClone(seed));
+      }
+      await database.metadata.put({ id: 'exercise-seed-version', value: SEED_VERSION });
+    }
   });
 }
 export async function readSnapshot(database = db): Promise<Snapshot> {

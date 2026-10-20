@@ -1,6 +1,6 @@
 # GitHub Pages 部署与版本
 
-RepLog 是静态 PWA，个人记录保存在浏览器，不需要服务端或数据库服务。当前版本为 **0.1.0**，尚未部署到线上；当前本地仓库未配置远程地址。
+RepLog 是静态 PWA，个人记录保存在浏览器，不需要服务端或数据库服务。当前版本为 **0.2.0**，尚未部署到线上；当前本地仓库未配置远程地址。
 
 ## 本地运行
 
@@ -25,11 +25,11 @@ npm run preview
 2. 在仓库 Settings → Pages → Build and deployment 中，将 Source 设为 **GitHub Actions**。
 3. 推送主分支会运行检查和构建；在 Actions 中手动运行“构建与发布”工作流，或推送匹配版本的标签，即可发布。
 
-首个版本标签示例，执行前应确保对应实现和测试已经提交：
+当前版本标签示例，执行前应确保对应实现和测试已经提交：
 
 ```sh
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
 站点地址一般为 `https://用户名.github.io/RepLog/`，应用内地址形如 `https://用户名.github.io/RepLog/#/calendar`。仓库名不同会自动使用对应路径。无需配置 404 跳转文件，哈希路由能直接打开和刷新。

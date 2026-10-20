@@ -21,7 +21,7 @@ export default defineConfig({
     includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
     manifest: {
       id: base, name: 'RepLog 健身日历', short_name: 'RepLog',
-      description: '把每一餐、每一次训练，记进你的日常。', lang: 'zh-CN',
+      description: '个人训练与饮食记录。', lang: 'zh-CN',
       theme_color: '#217a56', background_color: '#f6f7f3',
       display: 'standalone', start_url: base, scope: base,
       icons: [

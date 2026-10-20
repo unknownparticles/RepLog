@@ -1,11 +1,26 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db, initialize, readSnapshot } from '../src/db/database';
 import { exportBackup, importBackup, validateBackup, clearData } from '../src/db/backup';
-import { journalFor, removeRecord, saveFood, saveJournal, saveMeal, saveWorkout } from '../src/db/commands';
+import { journalFor, removeRecord, saveExercise, saveFood, saveJournal, saveMeal, saveWorkout } from '../src/db/commands';
+import { meta } from '../src/domain/model';
 import { sampleFood, meal, workout } from './fixtures';
 
 beforeEach(async () => { await db.delete(); await db.open(); await initialize(); });
 describe('本地事务与恢复', () => {
+  it('旧版种子更新保留收藏、自建动作和历史快照，重复初始化不重复升级', async () => {
+    const before = await readSnapshot(); const old = { ...before.exercises[0], favorite: true, instructions: '旧版说明' };
+    await db.exercises.put(old);
+    const history = workout(); history.exercises[0].exercise = structuredClone(old);
+    await saveWorkout(history, before.generation);
+    const custom = await saveExercise({ ...old, ...meta(), name: '个人卧推', builtin: false }, before.generation);
+    await db.metadata.put({ id: 'exercise-seed-version', value: '1' });
+    await initialize(); const after = await readSnapshot();
+    const updated = after.exercises.find(e => e.id === old.id)!;
+    expect(updated.favorite).toBe(true); expect(updated.instructions).not.toBe('旧版说明');
+    expect(after.exercises.find(e => e.id === custom.id)).toEqual(custom);
+    expect(after.workouts[0].exercises[0].exercise.instructions).toBe('旧版说明');
+    await initialize(); expect((await db.exercises.get(old.id))?.revision).toBe(updated.revision);
+  });
   it('初始化幂等，动作种子覆盖并且不污染用户食物库', async () => { await initialize(); const data = await readSnapshot(); expect(data.exercises.length).toBeGreaterThanOrEqual(30); expect(data.foods).toHaveLength(0); expect(await db.profiles.count()).toBe(1); });
   it('旧版本并发写入被拒绝，历史餐食保留食物快照', async () => {
     const { generation } = await readSnapshot(); const food = await saveFood(sampleFood(), generation);

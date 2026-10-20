@@ -7,7 +7,7 @@ test('记录餐食与训练，查看五种分析，离线刷新并备份恢复',
   page.on('dialog', dialog => dialog.accept());
   await page.clock.install({ time: new Date('2026-10-20T04:00:00.000Z') });
   await page.goto('./#/calendar');
-  await expect(page.getByRole('heading', { name: '把进步，记在日常.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '日历', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /2026-10-20，/ })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('./#/nutrition');
   await page.getByRole('button', { name: '记录餐食', exact: true }).click();
@@ -28,7 +28,7 @@ test('记录餐食与训练，查看五种分析，离线刷新并备份恢复',
   await page.getByRole('button', { name: '开始训练', exact: true }).click();
   await page.getByRole('button', { name: '选择动作', exact: true }).click();
   await page.getByLabel('搜索动作').fill('杠铃卧推');
-  await page.getByRole('button', { name: '加入', exact: true }).click();
+  await page.getByRole('button', { name: '加入杠铃卧推', exact: true }).click();
   await page.getByLabel('第1组重量').fill('50');
   await page.getByLabel('第1组次数').fill('10');
   await page.getByRole('button', { name: '第1组标记完成' }).click();
@@ -37,16 +37,17 @@ test('记录餐食与训练，查看五种分析，离线刷新并备份恢复',
   await page.clock.runFor(1000);
   await expect(page.getByRole('status').filter({ hasText: '已保存在本地' })).toBeVisible();
   await expect(page.locator('.workout-status')).toContainText('1,000 kg');
+  await page.screenshot({ path: 'test-results/workout-desktop.png' });
   await page.getByRole('button', { name: '完成训练', exact: true }).click();
   await expect(page.locator('.workout-history-row')).toHaveCount(1);
   await page.goto('./#/analytics?period=month&anchor=2026-10-20');
-  await expect(page.getByRole('heading', { name: '看见积累的力量.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '分析', exact: true })).toBeVisible();
   for (const period of ['日', '周', '月', '季度', '年度']) {
     await page.getByRole('button', { name: period, exact: true }).click();
     await expect(page.getByRole('heading', { name: '摄入与目标' })).toBeVisible();
     await expect(page.locator('.metric').filter({ hasText: '完成训练' })).toContainText('1');
   }
-  await expect(page.getByRole('heading', { name: '这一年的坚持' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '年度记录' })).toBeVisible();
   await page.goto('./#/settings');
   await expect(page.getByTestId('app-version')).toHaveText(`v${pkg.version}`);
   await page.getByRole('button', { name: '设置目标', exact: true }).click();
@@ -75,9 +76,9 @@ test('记录餐食与训练，查看五种分析，离线刷新并备份恢复',
   await expect(page.locator('.storage-status')).toContainText('离线可用');
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByRole('heading', { name: '把进步，记在日常.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '日历', exact: true })).toBeVisible();
   await page.goto('./#/analytics?period=year&anchor=2026-10-20');
-  await expect(page.getByRole('heading', { name: '这一年的坚持' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '年度记录' })).toBeVisible();
   await context.setOffline(false);
   expect(errors).toEqual([]);
 });
@@ -86,7 +87,7 @@ test('手机布局、版本、非法日期和子路径资源', async ({ page, ba
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto('./#/calendar');
   await expect(page.locator('.mobile-nav')).toBeVisible();
-  for (const route of ['calendar', 'training', 'nutrition', 'analytics', 'settings', 'exercises', 'foods']) {
+  for (const route of ['calendar', 'training', 'nutrition', 'analytics', 'settings', 'exercises', 'equipment', 'foods']) {
     await page.goto(`./#/${route}`);
     await expect(page.locator('main h1')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
