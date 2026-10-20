@@ -31,9 +31,19 @@ export default defineConfig({
       ],
     },
     workbox: {
-      globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}', 'media/exercises/manifest.json', 'media/exercises/ATTRIBUTION.md'],
       navigateFallback: 'index.html', cleanupOutdatedCaches: true, clientsClaim: true,
       maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+      runtimeCaching: [{
+        urlPattern: ({ url, sameOrigin }) => sameOrigin && /\/media\/exercises\/[^/]+\.(?:mp4|jpg)$/.test(url.pathname),
+        handler: 'CacheFirst',
+        options: {
+          cacheName: `replog-exercise-media-v1-${encodeURIComponent(base)}`,
+          cacheableResponse: { statuses: [200] },
+          expiration: { maxEntries: 100, maxAgeSeconds: 90 * 24 * 60 * 60, purgeOnQuotaError: true },
+          rangeRequests: true,
+        },
+      }],
     },
   })],
 });
