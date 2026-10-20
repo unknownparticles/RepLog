@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Download, Play, RotateCcw, Trash2 } from 'lucide-react';
+import { ExerciseIllustration } from './ExerciseIllustration';
 import type { Exercise } from '../domain/model';
 import { cachedMedia, mediaFor, mediaUrl, removeOfflineMedia, saveMediaOffline } from '../domain/exercise-media';
 
 export function ExerciseDemo({ exercise }: { exercise: Exercise }) {
   const media = mediaFor(exercise);
-  if (!media) return <p className="demo-unavailable">暂无对应视频示范，可参考动作说明。</p>;
+  if (!media) return <div className="demo-line-preview"><ExerciseIllustration exercise={exercise} animate={false} /><p className="demo-unavailable">暂无对应视频示范，可参考动作说明。</p></div>;
   return <DemoPlayer key={media.exerciseId} exercise={exercise} />;
 }
 
