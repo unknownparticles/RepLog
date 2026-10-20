@@ -2,7 +2,9 @@
 
 以日历串联训练与饮食的健身 PWA：每天吃了什么、练了什么，以及长期变化趋势。
 
-当前已开始实施 **v0.5.0**，提供可运行的日历、训练、饮食、分析和设置页面。默认中文、移动端优先、无需登录，数据保存在当前浏览器。关于页明确显示应用版本与构建信息。全部规格验收进度见实施任务，当前尚未发布线上站点。
+当前版本 **v0.5.0**，提供日历、训练、饮食、分析和设置页面。默认中文、移动端优先、无需登录，数据保存在当前浏览器。关于页显示应用版本与构建信息。全部规格验收进度见实施任务。
+
+[GitHub 仓库](https://github.com/unknownparticles/RepLog) · [GitHub Pages 站点](https://unknownparticles.github.io/RepLog/) · [构建与发布记录](https://github.com/unknownparticles/RepLog/actions/workflows/pages.yml)
 
 界面参考 shadcn/ui，使用 Radix UI 提供弹窗和筛选交互。内置 **84 个动作、30 类器械**，支持中英文搜索、辅助肌群筛选、现有器械匹配及个人动作维护。
 

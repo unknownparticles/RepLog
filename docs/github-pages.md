@@ -1,6 +1,6 @@
 # GitHub Pages 部署与版本
 
-RepLog 是静态 PWA，个人记录保存在浏览器，不需要服务端或数据库服务。当前版本为 **0.5.0**，尚未部署到线上；当前本地仓库未配置远程地址。
+RepLog 是静态 PWA，个人记录保存在浏览器，不需要服务端或数据库服务。当前版本为 **0.5.0**，仓库为 [unknownparticles/RepLog](https://github.com/unknownparticles/RepLog)，Pages 地址为 [unknownparticles.github.io/RepLog](https://unknownparticles.github.io/RepLog/)。每次部署状态以 [Actions 记录](https://github.com/unknownparticles/RepLog/actions/workflows/pages.yml)为准。
 
 ## 本地运行
 
