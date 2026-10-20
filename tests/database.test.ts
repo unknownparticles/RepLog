@@ -38,17 +38,20 @@ describe('本地事务与恢复', () => {
     await initialize(); expect((await db.exercises.get(old.id))?.revision).toBe(updated.revision);
   });
   it('初始化幂等，动作种子覆盖并且不污染用户食物库', async () => { await initialize(); const data = await readSnapshot(); expect(data.exercises.length).toBeGreaterThanOrEqual(30); expect(data.foods).toHaveLength(0); expect(await db.profiles.count()).toBe(1); });
-  it('升级旧版目录补齐器械动作并保留归档、收藏和已有训练', async () => {
+  it.each([{ version: '2', firstNewId: 85 }, { version: '3', firstNewId: 109 }, { version: '4', firstNewId: 111 }])('升级目录版本 $version 补齐动作并保留归档、收藏和已有训练', async ({ version, firstNewId }) => {
     const before = await readSnapshot();
     const original = before.exercises.find(item => item.id === 'builtin-001')!;
     await db.exercises.put({ ...original, favorite: true, archived: true });
-    await db.exercises.bulkDelete(seedExercises.filter(item => Number(item.id.slice(8)) >= 85).map(item => item.id));
+    await db.exercises.bulkDelete(seedExercises.filter(item => Number(item.id.slice(8)) >= firstNewId).map(item => item.id));
     const history = workout(); const savedHistory = await saveWorkout(history, before.generation);
-    await db.metadata.put({ id: 'exercise-seed-version', value: '2' });
+    await db.metadata.put({ id: 'exercise-seed-version', value: version });
     await initialize();
     const after = await readSnapshot();
     expect(after.exercises).toHaveLength(seedExercises.length);
     expect(after.exercises.find(item => item.name === '悍马平板推胸')?.id).toBe('builtin-085');
+    expect(after.exercises.find(item => item.name === '推雪橇车')?.id).toBe('builtin-109');
+    expect(after.exercises.find(item => item.name === '波比跳')?.id).toBe('builtin-110');
+    expect(after.exercises.find(item => item.name === '悬挂划船')?.id).toBe('builtin-116');
     expect(after.exercises.find(item => item.id === original.id)).toMatchObject({ favorite: true, archived: true });
     expect(after.workouts).toEqual([savedHistory]);
     expect(after.generation).toBe(before.generation);

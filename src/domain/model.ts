@@ -90,5 +90,5 @@ export type Snapshot = { profile: Profile; exercises: Exercise[]; foods: Food[];
 export const muscles = ['胸', '背', '肩', '腿', '臀', '手臂', '核心', '有氧'];
 export const equipmentList: string[] = equipmentCatalog.map(item => item.name);
 export const modeLabels: Record<Exercise['mode'], string> = { weighted: '负重 × 次数', bodyweight: '徒手 × 次数', assisted: '辅助 × 次数', timed: '力量计时', cardio: '有氧时长' };
-export function meta(id: string = crypto.randomUUID()) { const now = new Date().toISOString(); return { id, createdAt: now, updatedAt: now, revision: 1 }; }
+export { meta } from './record-meta';
 export function blankSet(): WorkoutSet { return { id: crypto.randomUUID(), kind: 'work', completed: false, reps: null, loadGrams: null, assistanceGrams: null, durationSeconds: null, distanceMeters: null, rpe: null }; }

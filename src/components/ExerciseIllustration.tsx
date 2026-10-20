@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import type { Exercise } from '../domain/model';
 import { illustrationFor, type Joint, type Point, type Pose, type Scene } from '../domain/exercise-illustrations';
 
@@ -46,6 +46,10 @@ function Equipment({ scene, exercise, from, to, motion }: { scene: Scene; exerci
     {scene === 'elliptical' && <><circle cx="126" cy="88" r="12" /><path d="M28 104H141M122 88L113 33H104M127 88L133 38H141M52 96L119 90M34 101L119 96" /></>}
     {scene === 'stairs' && <path d="M23 104H49V92H79V79H113V66H141" />}
     {scene === 'sled' && <><path d="M109 102H151L155 98M125 102V70M132 102V65M111 95H149M141 95V81" /><circle cx="141" cy="90" r="5" /></>}
+    {scene === 'battleRopes' && <><path d="M157 100V82" />{(['lh', 'rh'] as const).map(hand => <path key={hand} d={`M${from[hand].join(' ')}Q129 52 137 80T157 88`}>{motion && <animate attributeName="d" values={`M${from[hand].join(' ')}Q129 52 137 80T157 88;M${to[hand].join(' ')}Q129 96 137 80T157 88;M${from[hand].join(' ')}Q129 52 137 80T157 88`} dur="3.2s" repeatCount="indefinite" />}</path>)}</>}
+    {scene === 'suspension' && <><path d="M128 6H143" /><Segment a={[136,6]} b={from.lh} endB={to.lh} motion={motion} /><Segment a={[136,6]} b={from.rh} endB={to.rh} motion={motion} /></>}
+    {scene === 'box' && <path d="M98 102V79H145V102M101 84H141" />}
+    {scene === 'stabilityBall' && (exercise.id === 'builtin-119' ? <Dot at={offset(middle(from.lf,from.rf),0,13)} end={offset(middle(to.lf,to.rf),0,13)} radius={14} motion={motion} /> : <circle cx="81" cy="84" r="19" />)}
     {scene === 'rope' && <path d="M63 65C10 12 9 22 12 53C15 117 145 117 148 53C151 22 150 12 97 65" className="art-band" />}
     {scene === 'wheel' && <><Dot at={middle(from.lh,from.rh)} end={middle(to.lh,to.rh)} radius={7} motion={motion} /><Segment a={offset(middle(from.lh,from.rh),-10,0)} b={offset(middle(from.lh,from.rh),10,0)} endA={offset(middle(to.lh,to.rh),-10,0)} endB={offset(middle(to.lh,to.rh),10,0)} motion={motion} /></>}
     {(exercise.equipment.includes('史密斯机') || exercise.equipment.includes('深蹲架')) && <path d="M34 102V13M132 102V13M29 27H39M127 27H137M29 75H39M127 75H137" />}
@@ -62,22 +66,24 @@ function HandWeight({ at, end, motion, kettlebell = false }: { at: Point; end: P
   </g>;
 }
 
-export function ExerciseIllustration({ exercise, animate = true, className = '' }: { exercise: Exercise; animate?: boolean; className?: string }) {
+export const ExerciseIllustration = memo(function ExerciseIllustration({ exercise, animate = true, className = '' }: { exercise: Exercise; animate?: boolean; className?: string }) {
   const svg = useRef<SVGSVGElement>(null);
   const [visible,setVisible] = useState(false);
   const [reduced,setReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const [foreground,setForeground] = useState(document.visibilityState !== 'hidden');
   const drawing = illustrationFor(exercise);
   useEffect(() => {
+    if (!animate || drawing.still) return;
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => setReduced(preference.matches);
     const visibility = () => setForeground(document.visibilityState !== 'hidden');
+    update(); visibility();
     preference.addEventListener('change',update); document.addEventListener('visibilitychange',visibility);
     if (!('IntersectionObserver' in window)) setVisible(true);
     const observer = 'IntersectionObserver' in window ? new IntersectionObserver(entries => setVisible(entries[0].isIntersecting),{rootMargin:'40px'}) : null;
     if (svg.current) observer?.observe(svg.current);
     return () => { observer?.disconnect(); preference.removeEventListener('change',update); document.removeEventListener('visibilitychange',visibility); };
-  },[]);
+  },[animate, drawing.still]);
   const motion = animate && visible && foreground && !reduced && !drawing.still;
   const barOnShoulders = ['builtin-017','builtin-056'].includes(exercise.id);
   const prepare = (base: Pose): Pose => barOnShoulders ? {...base,le:offset(base.shoulder,-8,10),lh:offset(base.shoulder,5,-3),re:offset(base.shoulder,1,13),rh:offset(base.shoulder,15,0)} : exercise.id === 'builtin-018' ? {...base,le:offset(base.shoulder,-2,18),lh:offset(base.shoulder,12,9),re:offset(base.shoulder,8,20),rh:offset(base.shoulder,16,11)} : base;
@@ -97,6 +103,8 @@ export function ExerciseIllustration({ exercise, animate = true, className = '' 
     </g>
     {dumbbell && (['builtin-018','builtin-071'].includes(exercise.id) ? <HandWeight at={center} end={endCenter} motion={motion} /> : <><HandWeight at={from.lh} end={to.lh} motion={motion} /><HandWeight at={from.rh} end={to.rh} motion={motion} /></>)}
     {exercise.equipment.includes('壶铃') && <HandWeight at={center} end={endCenter} motion={motion} kettlebell />}
+    {exercise.equipment.includes('药球') && <g className="art-weight" strokeWidth="1.9"><Dot at={center} end={endCenter} radius={8} motion={motion} /></g>}
+    {exercise.equipment.includes('沙袋') && <ellipse className="art-weight" cx={center[0]} cy={center[1]} rx="13" ry="9" strokeWidth="1.9"><Motion attribute="cx" from={center[0]} to={endCenter[0]} enabled={motion} /><Motion attribute="cy" from={center[1]} to={endCenter[1]} enabled={motion} /></ellipse>}
     {barbell && <g className="art-weight" strokeWidth="2"><Segment a={offset(center,-22,0)} b={offset(center,22,0)} endA={offset(endCenter,-22,0)} endB={offset(endCenter,22,0)} motion={motion} /><Segment a={offset(center,-18,-6)} b={offset(center,-18,6)} endA={offset(endCenter,-18,-6)} endB={offset(endCenter,-18,6)} motion={motion} /><Segment a={offset(center,18,-6)} b={offset(center,18,6)} endA={offset(endCenter,18,-6)} endB={offset(endCenter,18,6)} motion={motion} /></g>}
   </svg>;
-}
+});

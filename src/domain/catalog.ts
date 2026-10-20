@@ -52,6 +52,12 @@ export const equipmentCatalog = [
   { name: '滑雪机', group: '有氧设备', aliases: ['SkiErg', 'Ski Erg', '滑雪测功仪'], description: '双手拉动绳把模拟滑雪推进。记录实际时长和设备显示距离，阻力档位可写入备注。' },
   { name: '风阻单车', group: '有氧设备', aliases: ['Air Bike', 'Assault Bike', '风扇车'], description: '手脚配合推动风扇产生阻力的单车。记录时长与设备距离，间歇工作和休息时间可写入备注。' },
   { name: '雪橇车', group: '训练辅助', aliases: ['sled', 'prowler', '力量雪橇', '推雪橇车'], description: '在平整训练道上推动的负重雪橇。确认路线畅通，记录时长和距离；车体与加载配重、地面材质写入训练备注，保持同车同场地比较。' },
+  { name: '战绳', group: '训练辅助', aliases: ['Battle Rope', 'Battle Ropes', '体能绳'], description: '固定锚点的粗绳，用于交替或双臂波浪。确认锚点牢固、周围无人，按实际工作时长记录。' },
+  { name: '药球', group: '自由重量', aliases: ['Medicine Ball', 'Slam Ball', '重力球', '砸球'], description: '用于负重转体或抛砸的球。砸地必须选用允许砸地、低回弹的球，记录球体实际重量。' },
+  { name: '沙袋', group: '自由重量', aliases: ['Sandbag', '力量沙袋', '训练沙包'], description: '可抱持或抓握的负重训练袋。检查提手与封口，记录整袋实际重量；行走时注明距离和时长。' },
+  { name: '悬挂训练带', group: '训练辅助', aliases: ['TRX', 'Suspension Trainer', '悬吊带', '悬挂带'], description: '固定锚点的双手柄训练带。使用可承重的牢固锚点，以脚位和身体倾角调整难度，按徒手次数记录。' },
+  { name: '跳箱', group: '训练辅助', aliases: ['Plyo Box', 'Plyometric Box', '跳跃箱'], description: '稳定防滑的平台。选择能轻稳落地的高度，跳上后逐脚下箱；箱高写入训练备注。' },
+  { name: '健身球', group: '训练辅助', aliases: ['Stability Ball', 'Swiss Ball', '瑞士球', '瑜伽球'], description: '充气大球，用于卷腹和腿弯举等稳定性训练。检查充气与承重，保持地面防滑，球径写入备注。' },
 ] as const;
 export const equipmentGroups = ['自由重量', '固定器械', '训练辅助', '有氧设备'] as const;
 export type ExerciseFilter = { query?: string; muscles?: string[]; includeSecondary?: boolean; equipment?: string[]; equipmentMatch?: 'uses' | 'available'; equipmentActive?: boolean; bodyweightOnly?: boolean; favorite?: boolean; archived?: boolean; type?: '' | 'strength' | 'cardio' };

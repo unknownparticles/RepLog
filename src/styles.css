@@ -578,6 +578,7 @@ main { padding: 32px; width: 100%; max-width: 1500px; margin: 0 auto; flex: 1; m
 .exercise-thumbnail { position: relative; flex: 0 0 76px; width: 76px; height: 57px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--sidebar); padding: 3px; color: var(--text); }
 .exercise-thumbnail>.thumbnail-video-marker { position: absolute; right: 3px; bottom: 3px; color: var(--panel); background: var(--text); border-radius: 3px; padding: 2px; width: 16px; height: 16px; }
 .exercise-art { display: block; width: 100%; height: 100%; color: var(--text); }
+.catalog-more { display: flex; justify-content: center; padding: 18px 0; }
 .art-equipment { color: var(--muted); opacity: .7; }
 .art-ground { opacity: .35; }
 .art-secondary { opacity: .58; }

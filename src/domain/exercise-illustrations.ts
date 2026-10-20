@@ -3,7 +3,7 @@ import type { Exercise } from './model';
 export type Point = [number, number];
 export type Joint = 'head' | 'shoulder' | 'hip' | 'le' | 'lh' | 're' | 'rh' | 'lk' | 'lf' | 'rk' | 'rf';
 export type Pose = Record<Joint, Point>;
-export type Scene = 'floor' | 'bench' | 'incline' | 'seat' | 'cable' | 'pulldown' | 'pullup' | 'dip' | 'rack' | 'legpress' | 'bike' | 'rower' | 'treadmill' | 'elliptical' | 'stairs' | 'rope' | 'wheel' | 'romanChair' | 'ski' | 'sled';
+export type Scene = 'floor' | 'bench' | 'incline' | 'seat' | 'cable' | 'pulldown' | 'pullup' | 'dip' | 'rack' | 'legpress' | 'bike' | 'rower' | 'treadmill' | 'elliptical' | 'stairs' | 'rope' | 'wheel' | 'romanChair' | 'ski' | 'sled' | 'battleRopes' | 'suspension' | 'box' | 'stabilityBall';
 export type Illustration = { from: Pose; to: Pose; scene: Scene; still?: boolean; name: string };
 const front: Pose = { head:[80,19], shoulder:[80,33], hip:[80,66], le:[65,48], lh:[63,69], re:[95,48], rh:[97,69], lk:[70,83], lf:[66,102], rk:[90,83], rf:[94,102] };
 const side: Pose = { head:[91,20], shoulder:[87,34], hip:[79,66], le:[92,50], lh:[94,68], re:[83,51], rh:[84,69], lk:[75,85], lf:[86,102], rk:[85,84], rf:[97,102] };
@@ -81,6 +81,16 @@ const definitions: Array<[number[], Illustration]> = [
   [[84],scene('腹肌轮',kneeling,pose(kneeling,{head:[120,65],shoulder:[110,76],hip:[72,80],le:[125,84],lh:[142,98],re:[117,86],rh:[135,98]}),'wheel')],
   [[109],scene('雪橇推行',pose(hinge,{le:[120,59],lh:[132,65],re:[113,64],rh:[125,70],lk:[59,84],lf:[46,102],rk:[87,87],rf:[94,102]}),pose(hinge,{le:[120,59],lh:[132,65],re:[113,64],rh:[125,70],lk:[88,83],lf:[95,102],rk:[64,88],rf:[49,102]}),'sled')],
   [[110],scene('波比跳起落',pushup.to,pose(shift(front,-10),{le:[64,13],lh:[66,2],re:[96,13],rh:[94,2]}))],
+  [[111],scene('战绳交替波浪',pose(squat.to,{lh:[114,55],rh:[113,85]}),pose(squat.to,{lh:[114,85],rh:[113,55]}),'battleRopes')],
+  [[112],scene('药球砸地',pose(front,{le:[68,14],lh:[77,3],re:[92,14],rh:[83,3]}),pose(squat.to,{lh:[114,95],rh:[120,95]}))],
+  [[113],scene('药球坐姿转体',pose(sitting,{head:[66,33],shoulder:[71,47],lh:[49,66],rh:[55,66]}),pose(sitting,{head:[80,33],shoulder:[78,47],lh:[100,63],rh:[106,63]}))],
+  [[114],scene('沙袋抱胸深蹲',pose(squat.from,{lh:[100,46],rh:[109,47]}),pose(squat.to,{lh:[102,65],rh:[110,66]}))],
+  [[115],scene('沙袋负重行走',pose(side,{lh:[100,46],rh:[109,47],lk:[99,82],lf:[108,102],rk:[65,86],rf:[51,102]}),pose(side,{lh:[100,46],rh:[109,47],lk:[65,86],lf:[51,102],rk:[99,82],rf:[108,102]}))],
+  [[116],scene('悬挂划船',pose(side,{head:[52,32],shoulder:[60,47],hip:[81,73],le:[75,42],lh:[93,37],re:[78,48],rh:[96,42],lk:[94,87],lf:[109,102],rk:[101,86],rf:[117,102]}),pose(side,{head:[72,26],shoulder:[78,41],hip:[90,71],le:[70,55],lh:[93,37],re:[79,58],rh:[96,42],lk:[100,87],lf:[109,102],rk:[109,86],rf:[117,102]}),'suspension')],
+  [[117],scene('悬挂俯卧撑',pose(pushup.from,{lh:[109,86],rh:[122,86]}),pose(pushup.to,{lh:[109,86],rh:[122,86]}),'suspension')],
+  [[118],scene('跳上箱面',pose(squat.to,{head:[56,39],shoulder:[52,53],hip:[30,76],le:[69,66],lh:[78,56],re:[58,68],rh:[70,61],lk:[59,79],lf:[50,102],rk:[48,86],rf:[63,102]}),pose(side,{head:[121,13],shoulder:[117,27],hip:[103,54],le:[128,41],lh:[137,55],re:[119,43],rh:[128,57],lk:[128,58],lf:[117,78],rk:[119,64],rf:[131,78]}),'box')],
+  [[119],scene('健身球腿弯举',pose(ground,{hip:[77,78],lk:[105,76],lf:[134,74],rk:[111,80],rf:[141,78]}),pose(ground,{hip:[77,69],lk:[101,57],lf:[111,74],rk:[109,62],rf:[118,78]}),'stabilityBall')],
+  [[120],scene('健身球卷腹',pose(ground,{head:[40,55],shoulder:[52,63],hip:[81,65],le:[44,76],lh:[59,62],re:[54,80],rh:[68,64]}),pose(ground,{head:[58,35],shoulder:[65,48],hip:[81,65],le:[55,62],lh:[68,47],re:[64,66],rh:[77,49]}),'stabilityBall')],
 ];
 export const illustrationRegistry = new Map<string, Illustration>(definitions.flatMap(([ids,drawing]) => ids.map(id => [`builtin-${String(id).padStart(3,'0')}`,drawing] as const)));
 const machineDrawings: Array<[number[], Illustration]> = [

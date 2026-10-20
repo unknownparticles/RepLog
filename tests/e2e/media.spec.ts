@@ -6,7 +6,8 @@ test('真人视频播放、慢放、完整下载及离线重开', async ({ page,
   page.on('request', request => { if (new URL(request.url()).origin !== new URL(baseURL!).origin && !request.url().startsWith('blob:')) foreignRequests.push(request.url()); });
   await page.goto('./#/exercises');
   await page.getByRole('checkbox', { name: '仅有示范', exact: true }).check();
-  await expect(page.locator('.exercise-row')).toHaveCount(manifest.length);
+  await expect(page.locator('.catalog-count')).toContainText(`${manifest.length} 个`);
+  await expect(page.locator('.exercise-row')).toHaveCount(24);
   await page.getByLabel('搜索动作').fill('杠铃卧推');
   await page.getByRole('button', { name: '杠铃卧推', exact: true }).click();
   const video = page.getByLabel('杠铃卧推示范视频');

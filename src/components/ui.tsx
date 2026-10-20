@@ -3,10 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { X, Info } from 'lucide-react';
-import type { Snapshot } from '../domain/model';
-export type AppContextValue = { data: Snapshot; run: (action: () => Promise<unknown>, message?: string) => Promise<boolean>; notify: (text: string, error?: boolean) => void };
-export const AppContext = createContext<AppContextValue | null>(null);
-export function useApp() { const context = useContext(AppContext); if (!context) throw new Error('应用尚未初始化'); return context; }
+export { AppContext, useApp, type AppContextValue } from './AppContext';
 export function PageTitle({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
   return <header className="page-title"><div><h1>{title}</h1>{description && <p>{description}</p>}</div>{action}</header>;
 }

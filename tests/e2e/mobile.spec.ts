@@ -1,6 +1,54 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+async function expectReadableControls(page: Page) {
+  for (const width of [390, 844, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    const undersized = await page.locator('input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), select, textarea').evaluateAll(elements => elements.filter(element => element.getClientRects().length && Number.parseFloat(getComputedStyle(element).fontSize) < 16).map(element => ({ label: element.getAttribute('aria-label') || element.closest('label')?.textContent, fontSize: getComputedStyle(element).fontSize })));
+    expect(undersized).toEqual([]);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+}
+
+test('触屏手机横竖屏和平板的搜索、表单、视频和组次控件至少使用十六像素字号', async ({ page }) => {
+  await page.goto('./#/calendar');
+  await page.getByRole('button', { name: /记录体重/ }).click();
+  await expectReadableControls(page);
+  await page.getByLabel('体重（千克）').focus();
+  await expect(page.getByLabel('体重（千克）')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await page.goto('./#/exercises');
+  await expect(page.locator('.exercise-row')).toHaveCount(24);
+  await expectReadableControls(page);
+  await page.getByRole('button', { name: '新建动作', exact: true }).click();
+  await expectReadableControls(page);
+  await page.keyboard.press('Escape');
+  await page.getByLabel('搜索动作').fill('杠铃卧推');
+  await page.getByRole('button', { name: '杠铃卧推', exact: true }).click();
+  await expect(page.getByLabel('示范播放速度')).toBeVisible();
+  await expectReadableControls(page);
+  await page.keyboard.press('Escape');
+  await page.goto('./#/foods');
+  await page.getByRole('button', { name: '新建食物', exact: true }).click();
+  await expectReadableControls(page);
+  await page.keyboard.press('Escape');
+  await page.goto('./#/training');
+  await page.getByRole('button', { name: '开始训练', exact: true }).click();
+  await page.getByRole('button', { name: '选择动作', exact: true }).click();
+  await page.getByLabel('搜索动作').fill('俯卧撑');
+  await page.getByRole('button', { name: '加入俯卧撑', exact: true }).click();
+  await expectReadableControls(page);
+  await expect(page.getByText('等待保存…', { exact: true })).toBeHidden();
+  for (const route of ['calories', 'settings']) {
+    await page.goto(`./#/${route}`);
+    await expect(page.locator('main h1')).toBeVisible();
+    await expectReadableControls(page);
+  }
+  const viewport = await page.locator('meta[name=viewport]').getAttribute('content');
+  expect(viewport).not.toMatch(/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/);
+});
 
 test('手机快捷记录沿用所选日期，周月视图保留选择并支持返回今天', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-20T04:00:00Z') });

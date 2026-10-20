@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
-import { meta, type Exercise, type Food, type Goal, type Journal, type Meal, type Profile, type Snapshot, type Template, type Weight, type Workout } from '../domain/model';
+import type { Exercise, Food, Goal, Journal, Meal, Profile, Snapshot, Template, Weight, Workout } from '../domain/model';
+import { meta } from '../domain/record-meta';
 import { seedExercises, SEED_VERSION } from '../domain/seeds';
 
 export class RepLogDB extends Dexie {

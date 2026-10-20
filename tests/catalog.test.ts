@@ -36,6 +36,16 @@ describe('动作和器械目录', () => {
     expect(filterExercises(seedExercises, { query: 'BENCH PRESS', muscles: ['手臂'], includeSecondary: true, equipment: ['杠铃'], type: 'strength' }).some(e => e.name === '杠铃卧推')).toBe(true);
     expect(filterExercises(seedExercises, { query: 'BENCH PRESS', type: 'cardio' })).toHaveLength(0);
   });
+  it('体能器械支持俗称和英文搜索，无器械筛选可找到波比跳', () => {
+    for (const [query, name] of [['推雪橇', '推雪橇车'], ['prowler', '推雪橇车'], ['Burpees', '波比跳'], ['立卧撑跳', '波比跳'], ['TRX', '悬挂划船'], ['体能绳', '战绳交替波浪'], ['沙包', '沙袋抱胸深蹲'], ['Swiss Ball', '健身球腿弯举'], ['砸球', '药球砸地'], ['Plyo Box', '跳箱']]) {
+      expect(filterExercises(seedExercises, { query }).map(item => item.name)).toContain(name);
+    }
+    const noGear = filterExercises(seedExercises, { equipment: [], equipmentMatch: 'available', equipmentActive: true });
+    expect(noGear.map(item => item.name)).toContain('波比跳');
+    expect(noGear.map(item => item.name)).not.toContain('推雪橇车');
+    const suspension = filterExercises(seedExercises, { equipment: ['悬挂训练带'], equipmentMatch: 'available', equipmentActive: true });
+    expect(suspension.filter(item => item.equipment.length).map(item => item.name)).toEqual(['悬挂划船', '悬挂俯卧撑']);
+  });
   it('悍马机与常见固定器械均有对应动作，品牌别名可直接搜索', () => {
     const hammer = equipmentCatalog.filter(item => matchesEquipment(item, '悍马机'));
     expect(hammer.map(item => item.name)).toEqual(['悍马推胸机', '悍马划船机', '悍马高位划船机', '悍马高位下拉机', '悍马推肩机']);

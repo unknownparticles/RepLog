@@ -5,13 +5,17 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { ZodError } from 'zod';
 import { readSnapshot } from './db/database';
-import { AppContext } from './components/ui';
-import { CalendarPage, DayPage } from './features/Calendar';
-import { TrainingPage, WorkoutPage, ExercisesPage } from './features/Training';
-import { NutritionPage, FoodsPage } from './features/Nutrition';
-import { SettingsPage } from './features/Settings';
-import { EquipmentPage } from './features/ExerciseLibrary';
-import { CalorieCalculatorPage } from './features/CalorieCalculator';
+import { AppContext } from './components/AppContext';
+const CalendarPage = lazy(() => import('./features/Calendar').then(module => ({ default: module.CalendarPage })));
+const DayPage = lazy(() => import('./features/Calendar').then(module => ({ default: module.DayPage })));
+const TrainingPage = lazy(() => import('./features/Training').then(module => ({ default: module.TrainingPage })));
+const WorkoutPage = lazy(() => import('./features/Training').then(module => ({ default: module.WorkoutPage })));
+const ExercisesPage = lazy(() => import('./features/ExerciseLibrary').then(module => ({ default: module.ExercisesPage })));
+const EquipmentPage = lazy(() => import('./features/ExerciseLibrary').then(module => ({ default: module.EquipmentPage })));
+const NutritionPage = lazy(() => import('./features/Nutrition').then(module => ({ default: module.NutritionPage })));
+const FoodsPage = lazy(() => import('./features/Nutrition').then(module => ({ default: module.FoodsPage })));
+const SettingsPage = lazy(() => import('./features/Settings').then(module => ({ default: module.SettingsPage })));
+const CalorieCalculatorPage = lazy(() => import('./features/CalorieCalculator').then(module => ({ default: module.CalorieCalculatorPage })));
 const AnalyticsPage = lazy(() => import('./features/Analytics'));
 const navigation = [
   { to: '/calendar', label: '日历', icon: CalendarDays }, { to: '/training', label: '训练', icon: Dumbbell },
@@ -61,7 +65,7 @@ export function App() {
     </aside>
     <div className="main-shell"><div className="topbar"><span className="topbar-title">RepLog <span>/</span> {navigation.find(item => item.to === active)?.label || '记录'}</span><div className="topbar-right"><span className="storage-status">{online ? <Check size={14} /> : <CloudOff size={14} />}{offlineReady || cached ? '离线可用 · 本地保存' : registerError ? '离线准备失败' : '本地保存'}</span><NavLink to="/settings" className="avatar" aria-label="我的设置">我</NavLink></div></div>
       {needRefresh && <div className="update-banner"><RefreshCw size={16} /><span>新版本已准备好。请先保存当前输入，再更新。</span><button onClick={() => { if (window.confirm('确定已保存当前输入？更新会重新载入页面，已保存的训练草稿将保留。')) void updateServiceWorker(true); }}>更新应用</button></div>}
-      <main><Suspense fallback={<div className="empty">正在准备分析图表…</div>}><Routes key={data.generation}>
+      <main><Suspense fallback={<div className="empty">正在加载页面…</div>}><Routes key={data.generation}>
         <Route path="/" element={<Navigate to="/calendar" replace />} /><Route path="/calendar" element={<CalendarPage />} /><Route path="/day/:date" element={<DayPage />} />
         <Route path="/training" element={<TrainingPage />} /><Route path="/exercises" element={<ExercisesPage />} /><Route path="/equipment" element={<EquipmentPage />} /><Route path="/workouts/:id" element={<WorkoutPage />} />
         <Route path="/nutrition" element={<NutritionPage />} /><Route path="/foods" element={<FoodsPage />} /><Route path="/calories" element={<CalorieCalculatorPage />} /><Route path="/analytics" element={<AnalyticsPage />} /><Route path="/settings" element={<SettingsPage offlineReady={offlineReady || cached} registerError={registerError} />} />

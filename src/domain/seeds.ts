@@ -1,6 +1,8 @@
-import { meta, type Exercise } from './model';
+import type { Exercise } from './model';
+import { meta } from './record-meta';
 import { additionalExercises, guides, refinedEquipment } from './exercise-guides';
 import { machineExercises } from './machine-exercises';
+import { conditioningExercises } from './conditioning-exercises';
 type Definition = [string, string[], string[], Exercise['mode'], string?, string[]?];
 const definitions: Definition[] = [
   ['杠铃卧推', ['胸'], ['杠铃', '训练凳'], 'weighted', '双脚踩稳，肩胛保持稳定，控制下放。', ['肩', '手臂']],
@@ -25,7 +27,7 @@ const definitions: Definition[] = [
   ['户外跑步', ['有氧'], [], 'cardio'], ['跑步机', ['有氧'], ['跑步机'], 'cardio'],
   ['室内单车', ['有氧'], ['单车'], 'cardio'], ['划船机', ['有氧'], ['划船机'], 'cardio'],
 ];
-export const SEED_VERSION = '4';
+export const SEED_VERSION = '5';
 const originals: Exercise[] = definitions.map(([name, primaryMuscles, equipment, mode, instructions, secondaryMuscles], index) => ({
   ...meta(`builtin-${String(index + 1).padStart(3, '0')}`), name, primaryMuscles, equipment, mode,
   instructions: instructions || '选择可控制的强度，动作全程保持稳定，出现疼痛时停止。',
@@ -56,4 +58,5 @@ export const seedExercises: Exercise[] = [
     instructions: '站稳后屈髋屈膝，双手撑地，双脚后移进入高平板支撑，避免塌腰。\n控制完成一次俯卧撑，双脚收回后起身向上跳，屈膝缓冲落地；保持呼吸和可控节奏。\n完成整个循环计一次；初学者可逐脚后撤和收回、取消俯卧撑或跳跃，并在训练备注注明变式。',
     builtin: true, favorite: false, archived: false,
   },
+  ...conditioningExercises,
 ];

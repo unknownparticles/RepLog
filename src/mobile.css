@@ -93,6 +93,12 @@
   .app-shell:has(.workout-editor) .toast { bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 84px); }
   button, a { touch-action: manipulation; }
 }
+/* iOS 聚焦小于 16px 的编辑控件会自动缩放；覆盖组件字号，横屏与平板同样适用。 */
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  html body :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]), select, textarea, [contenteditable=true]) {
+    font-size: 16px;
+  }
+}
 @media (max-width: 370px) {
   .calendar-heading { flex-wrap: wrap; }
   .calendar-navigation { width: 100%; }

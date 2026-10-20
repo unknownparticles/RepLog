@@ -91,3 +91,34 @@ test('手机搜索悍马系列、按具体机型筛选并完成训练记录', as
   await page.getByRole('button', { name: '完成训练', exact: true }).click();
   await expect(page.locator('.workout-history-row')).toHaveCount(1);
 });
+
+test('新增体能器械支持搜索、动作说明和按不同方式完成训练', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./#/equipment');
+  await page.getByLabel('搜索器械').fill('TRX');
+  await expect(page.locator('.equipment-row')).toHaveCount(1);
+  await page.getByRole('link', { name: '2 个相关动作' }).click();
+  await expect(page.locator('.exercise-row')).toHaveCount(2);
+  await page.getByRole('button', { name: '悬挂划船', exact: true }).click();
+  await expect(page.locator('.exercise-guide li')).toHaveCount(3);
+  await page.keyboard.press('Escape');
+  await page.goto('./#/training');
+  await page.getByRole('button', { name: '开始训练', exact: true }).click();
+  for (const [query, name] of [['Prowler', '推雪橇车'], ['Burpees', '波比跳'], ['砸球', '药球砸地']]) {
+    await page.getByRole('button', { name: '添加动作', exact: true }).click();
+    await page.getByLabel('搜索动作').fill(query);
+    await page.getByRole('button', { name: `加入${name}`, exact: true }).click();
+    const card = page.locator('.exercise-session').filter({ has: page.getByRole('heading', { name, exact: true }) });
+    if (name === '推雪橇车') {
+      await card.getByLabel('第1组时长').fill('1');
+      await card.getByLabel('第1组距离').fill('0.02');
+    } else {
+      if (name === '药球砸地') await card.getByLabel('第1组重量').fill('6');
+      await card.getByLabel('第1组次数').fill('10');
+    }
+    await card.getByRole('button', { name: '第1组标记完成', exact: true }).click();
+    await expect(page.getByRole('status').filter({ hasText: '已保存在本地' })).toBeVisible();
+  }
+  await page.getByRole('button', { name: '完成训练', exact: true }).click();
+  await expect(page.locator('.workout-history-row')).toHaveCount(1);
+});
