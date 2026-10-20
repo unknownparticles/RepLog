@@ -43,14 +43,14 @@ describe('本地事务与恢复', () => {
     const original = before.exercises.find(item => item.id === 'builtin-001')!;
     await db.exercises.put({ ...original, favorite: true, archived: true });
     await db.exercises.bulkDelete(seedExercises.filter(item => Number(item.id.slice(8)) >= 85).map(item => item.id));
-    const history = workout(); await saveWorkout(history, before.generation);
+    const history = workout(); const savedHistory = await saveWorkout(history, before.generation);
     await db.metadata.put({ id: 'exercise-seed-version', value: '2' });
     await initialize();
     const after = await readSnapshot();
     expect(after.exercises).toHaveLength(seedExercises.length);
     expect(after.exercises.find(item => item.name === '悍马平板推胸')?.id).toBe('builtin-085');
     expect(after.exercises.find(item => item.id === original.id)).toMatchObject({ favorite: true, archived: true });
-    expect(after.workouts).toEqual([history]);
+    expect(after.workouts).toEqual([savedHistory]);
     expect(after.generation).toBe(before.generation);
     expect((await db.metadata.get('exercise-seed-version'))?.value).toBe(SEED_VERSION);
     await initialize(); expect(await db.exercises.count()).toBe(seedExercises.length);

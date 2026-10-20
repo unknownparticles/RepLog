@@ -1,6 +1,6 @@
 # GitHub Pages 部署与版本
 
-RepLog 是静态 PWA，个人记录保存在浏览器，不需要服务端或数据库服务。当前版本为 **0.5.0**，仓库为 [unknownparticles/RepLog](https://github.com/unknownparticles/RepLog)，正式地址为 [alunapp.cn/RepLog](https://alunapp.cn/RepLog/)。账号已配置 Pages 自定义域名，默认 GitHub Pages 地址会跳转至该域名；站点已强制使用 HTTPS。每次部署状态以 [Actions 记录](https://github.com/unknownparticles/RepLog/actions/workflows/pages.yml)为准。
+RepLog 是静态 PWA，个人记录保存在浏览器，不需要服务端或数据库服务。当前版本为 **0.6.0**，仓库为 [unknownparticles/RepLog](https://github.com/unknownparticles/RepLog)，正式地址为 [alunapp.cn/RepLog](https://alunapp.cn/RepLog/)。账号已配置 Pages 自定义域名，默认 GitHub Pages 地址会跳转至该域名；站点已强制使用 HTTPS。每次部署状态以 [Actions 记录](https://github.com/unknownparticles/RepLog/actions/workflows/pages.yml)为准。
 
 ## 本地运行
 
@@ -28,8 +28,8 @@ npm run preview
 当前版本标签示例，执行前应确保对应实现和测试已经提交：
 
 ```sh
-git tag v0.5.0
-git push origin v0.5.0
+git tag v0.6.0
+git push origin v0.6.0
 ```
 
 站点地址一般为 `https://用户名.github.io/RepLog/`，应用内地址形如 `https://用户名.github.io/RepLog/#/calendar`。仓库名不同会自动使用对应路径。无需配置 404 跳转文件，哈希路由能直接打开和刷新。

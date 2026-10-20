@@ -2,7 +2,7 @@
 
 以日历串联训练与饮食的健身 PWA：每天吃了什么、练了什么，以及长期变化趋势。
 
-当前版本 **v0.5.0**，提供日历、训练、饮食、分析和设置页面。默认中文、移动端优先、无需登录，数据保存在当前浏览器。关于页显示应用版本与构建信息。全部规格验收进度见实施任务。
+当前版本 **v0.6.0**，提供日历、训练、饮食、分析和设置页面。默认中文、移动端优先、无需登录，数据保存在当前浏览器。关于页显示应用版本与构建信息。全部规格验收进度见实施任务。
 
 [GitHub 仓库](https://github.com/unknownparticles/RepLog) · [在线使用](https://alunapp.cn/RepLog/) · [构建与发布记录](https://github.com/unknownparticles/RepLog/actions/workflows/pages.yml)
 
