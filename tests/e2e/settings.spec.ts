@@ -49,3 +49,17 @@ test('手机饮食工具分行排列并沿用所选日期', async ({ page }) => 
   await expect(tools.getByRole('link', { name: '健身食谱' })).toHaveAttribute('href', '#/recipes?date=2026-10-19');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('设置页可检查最新版本，离线提示联网，恢复网络后可重试', async ({ page, context }) => {
+  await page.goto('./#/settings');
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  const app = page.getByRole('region', { name: '应用信息', exact: true });
+  await app.getByRole('button', { name: '检查更新', exact: true }).click();
+  await expect(app).toContainText('当前已是最新版本。');
+  await context.setOffline(true);
+  await app.getByRole('button', { name: '检查更新', exact: true }).click();
+  await expect(app).toContainText('当前处于离线状态，请联网后检查更新。');
+  await context.setOffline(false);
+  await app.getByRole('button', { name: '检查更新', exact: true }).click();
+  await expect(app).toContainText('当前已是最新版本。');
+});

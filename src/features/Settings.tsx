@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, Upload, ShieldCheck, Smartphone, Info, Check, Trash2, Target, Scale, ExternalLink, Sun, Moon, Monitor, Clock, ChevronRight } from 'lucide-react';
+import { Download, Upload, ShieldCheck, Smartphone, Info, Check, Trash2, Target, Scale, ExternalLink, Sun, Moon, Monitor, Clock, ChevronRight, RefreshCw } from 'lucide-react';
 import { Actions, Button, Field, Modal, PageTitle, num, submit, useApp, value } from '../components/ui';
 import { goalSchema, profileSchema, meta } from '../domain/model';
 import { goalFor, displayNumber } from '../domain/analytics';
@@ -8,13 +8,17 @@ import { today } from '../domain/dates';
 import { removeRecord, saveGoal, saveProfile } from '../db/commands';
 import { backupCounts, clearData, downloadJSON, exportBackup, importBackup, validateBackup, type Backup } from '../db/backup';
 import { WeightDialog } from './Calendar';
+import type { UpdateStatus } from '../services/app-update';
 
 function SettingRow({ icon, title, description, children }: { icon?: ReactNode; title: string; description?: ReactNode; children?: ReactNode }) {
   return <div className="setting-row">{icon && <span className="setting-icon">{icon}</span>}<div className="setting-copy"><h3>{title}</h3>{description && <div className="setting-description">{description}</div>}</div>{children && <div className="setting-control">{children}</div>}</div>;
 }
 
 type InstallEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
-export function SettingsPage({ offlineReady, registerError }: { offlineReady: boolean; registerError: boolean }) {
+export function SettingsPage({ offlineReady, registerError, needRefresh, updateStatus, updateError, onCheckUpdate, onApplyUpdate }: {
+  offlineReady: boolean; registerError: boolean; needRefresh: boolean; updateStatus: UpdateStatus; updateError: string;
+  onCheckUpdate: () => void; onApplyUpdate: () => void;
+}) {
   const { data, run, notify } = useApp(); const now = today(data.profile.timeZone); const goal = goalFor(data.goals, now);
   const [timeZoneOpen, setTimeZoneOpen] = useState(false);
   const [timeZoneError, setTimeZoneError] = useState('');
@@ -79,6 +83,9 @@ export function SettingsPage({ offlineReady, registerError }: { offlineReady: bo
           </SettingRow>
           <div className="settings-supplement">{install ? <Button onClick={() => void run(async () => { await install.prompt(); const choice = await install.userChoice; if (choice.outcome === 'accepted') setInstall(null); })}><Download size={17} />安装 RepLog</Button> : <details><summary>查看安装方法</summary><div className="install-instructions"><p><strong>iPhone / iPad</strong><span>Safari → 分享 → 添加到主屏幕</span></p><p><strong>Android / 电脑</strong><span>浏览器菜单 → 安装应用（如该平台支持）</span></p></div></details>}{registerError && <button className="button secondary" onClick={() => location.reload()}>重新准备离线资源</button>}</div>
           <SettingRow icon={<Info size={20} />} title="关于 RepLog" description="个人训练与饮食记录"><span className="version-badge" data-testid="app-version">v{__APP_VERSION__}</span></SettingRow>
+          <SettingRow icon={<RefreshCw size={20} />} title="应用更新" description={<span role="status" aria-live="polite">{needRefresh ? '新版本已准备好，请先保存当前输入再更新。' : updateStatus === 'checking' ? '正在检查并准备更新…' : updateStatus === 'latest' ? '当前已是最新版本。' : updateStatus === 'error' ? updateError : '联网检查是否有新版本。'}</span>}>
+            <button className={`button ${needRefresh ? 'primary' : 'secondary'}`} disabled={updateStatus === 'checking'} onClick={needRefresh ? onApplyUpdate : onCheckUpdate}><RefreshCw size={16} />{needRefresh ? '立即更新' : updateStatus === 'checking' ? '正在检查…' : '检查更新'}</button>
+          </SettingRow>
           <div className="settings-supplement"><details><summary>版本详情与素材署名</summary><div className="detail-list"><p><span>构建提交</span><code>{__BUILD_SHA__}</code></p><p><span>构建时间</span><strong>{new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'short', timeZone: data.profile.timeZone }).format(new Date(__BUILD_TIME__))}</strong></p><p><span>数据格式 / 数据库</span><strong>2 / 2</strong></p><p><span>部署方式</span><strong>GitHub Pages · 静态 PWA</strong></p></div><a className="settings-link" href={`${import.meta.env.BASE_URL}media/exercises/ATTRIBUTION.md`} target="_blank" rel="noopener noreferrer">查看动作视频素材署名<ExternalLink size={16} /></a></details></div>
         </div>
       </section>

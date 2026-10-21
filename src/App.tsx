@@ -6,6 +6,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import { ZodError } from 'zod';
 import { readSnapshot } from './db/database';
 import { AppContext } from './components/AppContext';
+import { checkForAppUpdate, type UpdateStatus } from './services/app-update';
 const CalendarPage = lazy(() => import('./features/Calendar').then(module => ({ default: module.CalendarPage })));
 const DayPage = lazy(() => import('./features/Calendar').then(module => ({ default: module.DayPage })));
 const TrainingPage = lazy(() => import('./features/Training').then(module => ({ default: module.TrainingPage })));
@@ -31,8 +32,22 @@ export function App() {
   const [online, setOnline] = useState(navigator.onLine);
   const [cached, setCached] = useState(false);
   const [registerError, setRegisterError] = useState(false);
+  const registration = useRef<ServiceWorkerRegistration | undefined>(undefined);
+  const checkingUpdate = useRef(false);
+  const reloading = useRef(false);
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('idle');
+  const [updateError, setUpdateError] = useState('');
   const previousGeneration = useRef<string | null>(null);
-  const { offlineReady: [offlineReady], needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW({ onRegisterError: () => setRegisterError(true) });
+  function reloadAfterUpdate() {
+    if (reloading.current) return;
+    reloading.current = true;
+    window.location.reload();
+  }
+  const { offlineReady: [offlineReady], needRefresh: [needRefresh], updateServiceWorker } = useRegisterSW({
+    onRegisteredSW: (_url, value) => { registration.current = value; },
+    onRegisterError: () => setRegisterError(true),
+    onNeedReload: reloadAfterUpdate,
+  });
   const route = useLocation();
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(null), toast.error ? 9000 : 4000); return () => clearTimeout(timer); }, [toast]);
   useEffect(() => {
@@ -57,6 +72,34 @@ export function App() {
     try { await action(); if (message) notify(message); return true; }
     catch (error) { notify(error instanceof ZodError ? '请检查输入：' + error.issues.map(i => i.message).slice(0, 3).join('；') : error instanceof Error ? error.message : '操作失败，请重试。', true); return false; }
   }
+  async function checkUpdate() {
+    if (checkingUpdate.current) return;
+    checkingUpdate.current = true;
+    setUpdateStatus('checking'); setUpdateError('');
+    try {
+      if (!navigator.onLine) throw new Error('当前处于离线状态，请联网后检查更新。');
+      if (import.meta.env.DEV) throw new Error('开发预览不提供更新检查，请使用已部署的应用。');
+      if (!('serviceWorker' in navigator)) throw new Error('当前浏览器不支持检查应用更新，请使用支持的浏览器并通过 HTTPS 访问。');
+      if (!registration.current) throw new Error('应用更新服务尚未就绪，请稍后重试。');
+      const available = await checkForAppUpdate(registration.current);
+      setUpdateStatus(available ? 'idle' : 'latest');
+    } catch (error) {
+      setUpdateError(error instanceof Error ? error.message : '检查更新失败，请稍后重试。');
+      setUpdateStatus('error');
+    } finally { checkingUpdate.current = false; }
+  }
+  function applyUpdate() {
+    if (!window.confirm('确定已保存当前输入？更新会重新载入页面，已保存的训练草稿将保留。')) return;
+    // 首次安装的同一会话中，注册库可能不把后续接管识别为更新，仍需在确认后刷新。
+    navigator.serviceWorker.addEventListener('controllerchange', reloadAfterUpdate, { once: true });
+    void run(async () => {
+      try { await updateServiceWorker(true); }
+      catch (error) {
+        navigator.serviceWorker.removeEventListener('controllerchange', reloadAfterUpdate);
+        throw error;
+      }
+    });
+  }
   if (!data) return <div className="boot"><Activity size={32} /><p>{databaseError || '正在读取你的记录…'}</p>{databaseError && <button onClick={() => location.reload()}>刷新重试</button>}</div>;
   const active = route.pathname.startsWith('/workouts') || ['/exercises', '/equipment'].includes(route.pathname) ? '/training' : ['/foods','/calories','/recipes','/healthy-meals'].includes(route.pathname) ? '/nutrition' : route.pathname.startsWith('/day') ? '/calendar' : route.pathname;
   return <AppContext.Provider value={{ data, run, notify }}><div className="app-shell">
@@ -66,11 +109,11 @@ export function App() {
       <NavLink to="/settings#about" className="sidebar-version">RepLog <span>v{__APP_VERSION__}</span></NavLink>
     </aside>
     <div className="main-shell"><div className="topbar"><span className="topbar-title">RepLog <span>/</span> {navigation.find(item => item.to === active)?.label || '记录'}</span><div className="topbar-right"><span className="storage-status">{online ? <Check size={14} /> : <CloudOff size={14} />}{offlineReady || cached ? '离线可用 · 本地保存' : registerError ? '离线准备失败' : '本地保存'}</span><NavLink to="/settings" className="avatar" aria-label="我的设置">我</NavLink></div></div>
-      {needRefresh && <div className="update-banner"><RefreshCw size={16} /><span>新版本已准备好。请先保存当前输入，再更新。</span><button onClick={() => { if (window.confirm('确定已保存当前输入？更新会重新载入页面，已保存的训练草稿将保留。')) void updateServiceWorker(true); }}>更新应用</button></div>}
+      {needRefresh && <div className="update-banner"><RefreshCw size={16} /><span>新版本已准备好。请先保存当前输入，再更新。</span><button onClick={applyUpdate}>更新应用</button></div>}
       <main><Suspense fallback={<div className="empty">正在加载页面…</div>}><Routes key={data.generation}>
         <Route path="/" element={<Navigate to="/calendar" replace />} /><Route path="/calendar" element={<CalendarPage />} /><Route path="/day/:date" element={<DayPage />} />
         <Route path="/training" element={<TrainingPage />} /><Route path="/exercises" element={<ExercisesPage />} /><Route path="/equipment" element={<EquipmentPage />} /><Route path="/workouts/:id" element={<WorkoutPage />} />
-        <Route path="/nutrition" element={<NutritionPage />} /><Route path="/healthy-meals" element={<HealthyMealsPage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/foods" element={<FoodsPage />} /><Route path="/calories" element={<CalorieCalculatorPage />} /><Route path="/analytics" element={<AnalyticsPage />} /><Route path="/settings" element={<SettingsPage offlineReady={offlineReady || cached} registerError={registerError} />} />
+        <Route path="/nutrition" element={<NutritionPage />} /><Route path="/healthy-meals" element={<HealthyMealsPage />} /><Route path="/recipes" element={<RecipesPage />} /><Route path="/foods" element={<FoodsPage />} /><Route path="/calories" element={<CalorieCalculatorPage />} /><Route path="/analytics" element={<AnalyticsPage />} /><Route path="/settings" element={<SettingsPage offlineReady={offlineReady || cached} registerError={registerError} needRefresh={needRefresh} updateStatus={updateStatus} updateError={updateError} onCheckUpdate={() => void checkUpdate()} onApplyUpdate={applyUpdate} />} />
         <Route path="*" element={<div className="empty"><h1>这一页还没有记录</h1><NavLink to="/calendar" className="button primary">回到日历</NavLink></div>} />
       </Routes></Suspense></main><footer className="app-footer"><span>RepLog v{__APP_VERSION__}</span><span>数据保存在当前浏览器</span></footer>
     </div>
