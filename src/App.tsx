@@ -21,7 +21,7 @@ const CalorieCalculatorPage = lazy(() => import('./features/CalorieCalculator').
 const AnalyticsPage = lazy(() => import('./features/Analytics'));
 const navigation = [
   { to: '/calendar', label: '日历', icon: CalendarDays }, { to: '/training', label: '训练', icon: Dumbbell },
-  { to: '/nutrition', label: '饮食', icon: Utensils }, { to: '/analytics', label: '分析', icon: ChartNoAxesCombined }, { to: '/settings', label: '我的', icon: Settings },
+  { to: '/nutrition', label: '饮食', icon: Utensils }, { to: '/analytics', label: '分析', icon: ChartNoAxesCombined }, { to: '/settings', label: '设置', icon: Settings },
 ];
 
 export function App() {

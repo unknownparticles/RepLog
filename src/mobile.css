@@ -1,4 +1,4 @@
-/* 沿用原有中性色、细边框和紧凑排版，仅补充手机操作适配。 */
+/* 手机操作保留足够的触控区域与阅读间距。 */
 @media (max-width: 760px) {
   :root { --nav-height: 62px; }
   .main-shell { min-height: 100dvh; padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom)); }
@@ -8,6 +8,7 @@
   .page-title>.button { min-height: 44px; }
   .button, .button.small, .panel-heading>.button, .toolbar .button, .workout-actions .button { min-height: 44px; }
   .text-button { min-height: 44px; }
+  button.text-button { min-height: 44px; }
   .icon-button, .row-actions .icon-button, .exercise-row-actions .icon-button, .exercise-session .row-actions .icon-button { min-width: 44px; width: 44px; min-height: 44px; }
   input:not([type=checkbox]):not([type=file]), select, textarea { min-height: 44px; font-size: 16px; }
   input[type=number] { appearance: textfield; -moz-appearance: textfield; }
@@ -81,6 +82,28 @@
   .meal-item-editor>select { width: 100%; max-width: none; grid-column: 2 / 4; font-size: 16px; }
   .record-row { flex-wrap: wrap; gap: 8px; }
   .record-body { min-width: 100px; }
+
+  .page-title p, .form-note, .record-body strong, .meal-placeholder { font-size: 14px; }
+  .record-body small, .field>small { font-size: 13px; }
+  .panel { padding: 20px; }
+  .panel-heading { flex-wrap: wrap; gap: 12px; }
+  .settings-groups { gap: 28px; }
+  .settings-group-heading p { font-size: 14px; }
+  .setting-row { flex-wrap: wrap; align-items: flex-start; gap: 12px; padding: 20px 16px; }
+  .setting-copy { flex-basis: calc(100% - 48px); }
+  .setting-control { margin-left: 48px; }
+  .setting-row:has(.theme-options) .setting-control { width: 100%; margin-left: 0; }
+  .theme-options .button { min-width: 0; padding-inline: 8px; flex-direction: column; gap: 6px; min-height: 66px; }
+  .settings-supplement { padding: 0 16px 16px; }
+  .settings-link, .settings-supplement summary, .detail-list>p { font-size: 14px; }
+  .detail-list>p { flex-wrap: wrap; gap: 4px 12px; }
+  .settings-danger { align-items: flex-start; flex-direction: column; }
+  .settings-danger .button { width: 100%; }
+  .nutrition-date { align-items: flex-start; flex-direction: column; }
+  .nutrition-date .date-switcher { width: 100%; }
+  .nutrition-date input { flex: 1; min-width: 0; }
+  .nutrition-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .nutrition-tools .button { font-size: 13px; min-height: 48px; padding-inline: 8px; gap: 6px; }
 
   .modal, .modal.wide { top: auto; left: 0; transform: none; width: 100%; max-height: calc(var(--dialog-viewport-height, 100dvh) - env(safe-area-inset-top) - 12px); bottom: var(--dialog-keyboard-inset, 0px); border-radius: 10px 10px 0 0; padding: 8px 18px calc(20px + env(safe-area-inset-bottom)); overscroll-behavior: contain; scroll-padding-block: 80px; }
   .modal-heading { position: sticky; top: -8px; z-index: 2; background: var(--panel); padding: 12px 0; margin: 0 0 14px; border-bottom: 1px solid var(--line); }
