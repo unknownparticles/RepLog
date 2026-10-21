@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { isValid, parseISO, format } from 'date-fns';
 import { equipmentCatalog } from './catalog';
+import { comboItemsSchema } from './meal-combo-schema';
 
 export const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
   const date = parseISO(value);
@@ -76,6 +77,7 @@ export const journalSchema = z.object({ ...metadata, localDate: dateSchema, diet
 export const goalSchema = z.object({ ...metadata, effectiveFrom: dateSchema, energy: z.number().finite().positive(), protein: optionalNutrition, carbs: optionalNutrition, fat: optionalNutrition }).strict();
 export const weightSchema = z.object({ ...metadata, localDate: dateSchema, timeZone: z.string(), weightGrams: z.number().finite().int().positive(), note: z.string() }).strict();
 export const templateSchema = z.object({ ...metadata, name: z.string().trim().min(1), exercises: z.array(workoutExerciseSchema).min(1) }).strict();
+export const mealComboSchema = z.object({ ...metadata, name: z.string().trim().min(1).max(120), items: comboItemsSchema }).strict();
 export type Profile = z.infer<typeof profileSchema>;
 export type Exercise = z.infer<typeof exerciseSchema>;
 export type Food = z.infer<typeof foodSchema>;
@@ -86,7 +88,8 @@ export type Journal = z.infer<typeof journalSchema>;
 export type Goal = z.infer<typeof goalSchema>;
 export type Weight = z.infer<typeof weightSchema>;
 export type Template = z.infer<typeof templateSchema>;
-export type Snapshot = { profile: Profile; exercises: Exercise[]; foods: Food[]; workouts: Workout[]; meals: Meal[]; journals: Journal[]; goals: Goal[]; weights: Weight[]; templates: Template[]; generation: string };
+export type MealCombo = z.infer<typeof mealComboSchema>;
+export type Snapshot = { profile: Profile; exercises: Exercise[]; foods: Food[]; workouts: Workout[]; meals: Meal[]; journals: Journal[]; goals: Goal[]; weights: Weight[]; templates: Template[]; mealCombos: MealCombo[]; generation: string };
 export const muscles = ['胸', '背', '肩', '腿', '臀', '手臂', '核心', '有氧'];
 export const equipmentList: string[] = equipmentCatalog.map(item => item.name);
 export const modeLabels: Record<Exercise['mode'], string> = { weighted: '负重 × 次数', bodyweight: '徒手 × 次数', assisted: '辅助 × 次数', timed: '力量计时', cardio: '有氧时长' };

@@ -2,7 +2,7 @@ import { meta, blankSet, type Food, type Meal, type Snapshot, type Workout } fro
 import { seedExercises } from '../src/domain/seeds';
 export const sampleFood = (energy = 120, protein: number | null = 4): Food => ({ ...meta(), name: '测试食物', energy, protein, carbs: 10, fat: null, servingName: '份', servingGrams: 150, favorite: false, archived: false });
 export function sampleSnapshot(): Snapshot {
-  return { profile: { ...meta('local'), timeZone: 'Asia/Shanghai', theme: 'system' }, exercises: structuredClone(seedExercises), foods: [], meals: [], workouts: [], journals: [], goals: [], weights: [], templates: [], generation: 'test' };
+  return { profile: { ...meta('local'), timeZone: 'Asia/Shanghai', theme: 'system' }, exercises: structuredClone(seedExercises), foods: [], meals: [], workouts: [], journals: [], goals: [], weights: [], templates: [], mealCombos: [], generation: 'test' };
 }
 export function meal(date: string, food: Food, grams = 100): Meal { return { ...meta(), localDate: date, timeZone: 'Asia/Shanghai', mealType: '午餐', note: '', items: [{ id: crypto.randomUUID(), food, grams, quantity: grams, unit: '克' }] }; }
 export function workout(): Workout {

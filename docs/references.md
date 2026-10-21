@@ -44,3 +44,10 @@ RepLog 独立设计前端 PWA，借鉴以上项目的产品组织方式。首版
 实际采用 [Anduin2017/HowToCook](https://github.com/Anduin2017/HowToCook) 的八篇菜谱，固定提交 `0e106eea348c734fe1586f781202994439cf98a5`，授权为 Unlicense。不是专门的健身营养数据库，选取其中适用的早餐、蛋白配菜和蔬菜，明确改编克重、油盐及制作步骤；原文与逐文件校验保存在 `resources/recipes/`。实际运行内置本地结构化食谱，不需要调用上游接口。
 
 同时检查了 MIT 项目 [Sosiggg/Fitness-Feast](https://github.com/Sosiggg/Fitness-Feast) 的食谱页面，其示例热量与营养展示有不一致，且包含站外素材，因此本次不采用其数据或素材。HowToCook 上游部分估算也不一致，本次统一按本地食材表重新计算。来源、估算范围与验收方法见 [健身食谱](fitness-recipes.md)。
+
+## 健身搭配参考（2026 年 10 月 21 日）
+
+- [NHS Eatwell Guide](https://www.nhs.uk/live-well/eat-well/food-guidelines-and-food-labels/the-eatwell-guide/)：已核对蔬果、较高纤维主食、豆鱼蛋肉与奶类的搭配，以及少量植物油原则。用于组织食物分类和组合示例，不复制站点图片或食谱。
+- [ISSN Position Stand: protein and exercise, 2017](https://pmc.ncbi.nlm.nih.gov/articles/PMC5477153/)：已核对一般运动人群蛋白质建议、食物来源与补剂的作用。没有把文中区间自动设置为所有人的目标，也没有据此虚构补剂热量。
+
+四种健康组合由本项目自行编写，明确克重并仅匹配用户登记的食材。通用参考目录的营养为项目维护的估算，不是从以上文献导入的食物成分数据库；具体产品使用用户实际标签。详细匹配边界见 [健身食物与健康组合餐](healthy-meals.md)。

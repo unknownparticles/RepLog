@@ -53,6 +53,7 @@ export function RecipesPage() {
     && [recipe.name, recipe.description, ...recipe.ingredients.map(item => recipeIngredients[item.key][0])].join(' ').toLowerCase().includes(query));
   function reset() { setSearch(''); setCategory('全部'); setProtein(false); setQuick(false); setVegetarian(false); }
   return <><PageTitle title="健身食谱" description="从开源中文菜谱精选改编，按份量备餐并记录饮食。" action={<Link className="button secondary" to={`/nutrition?date=${date}`}><ArrowLeft size={16} />饮食记录</Link>} />
+    <div className="toolbar"><Link className="button secondary" to={`/healthy-meals?date=${date}`}>用已登记食物组合健康餐</Link></div>
     <div className="toolbar"><label className="search"><Search size={18} /><input aria-label="搜索食谱或食材" placeholder="搜索食谱或食材…" value={search} onChange={e => setSearch(e.target.value)} /></label><Field label="食谱分类"><select value={category} onChange={e => setCategory(e.target.value)}>{['全部', '主食早餐', '蛋白配菜', '蔬菜'].map(item => <option key={item}>{item}</option>)}</select></Field></div>
     <div className="filter-chips recipe-filters" role="group" aria-label="食谱筛选"><button aria-pressed={protein} className={protein ? 'active' : ''} onClick={() => setProtein(!protein)}>蛋白 ≥20克/份</button><button aria-pressed={quick} className={quick ? 'active' : ''} onClick={() => setQuick(!quick)}>15分钟内</button><button aria-pressed={vegetarian} className={vegetarian ? 'active' : ''} onClick={() => setVegetarian(!vegetarian)}>蛋奶素可选</button><button onClick={reset}>重置筛选</button></div>
     <p className="form-note">共 {matches.length} 道 · 营养为每份估算，配菜可搭配主食，按自己的全天目标调整。</p>

@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import type { Exercise, Food, Goal, Journal, Meal, Profile, Snapshot, Template, Weight, Workout } from '../domain/model';
+import type { Exercise, Food, Goal, Journal, Meal, MealCombo, Profile, Snapshot, Template, Weight, Workout } from '../domain/model';
 import { meta } from '../domain/record-meta';
 import { seedExercises, SEED_VERSION } from '../domain/seeds';
 
@@ -13,6 +13,7 @@ export class RepLogDB extends Dexie {
   goals!: Table<Goal, string>;
   weights!: Table<Weight, string>;
   templates!: Table<Template, string>;
+  mealCombos!: Table<MealCombo, string>;
   metadata!: Table<{ id: string; value: string }, string>;
   constructor(name = `replog:${import.meta.env.BASE_URL}`) {
     super(name);
@@ -21,6 +22,7 @@ export class RepLogDB extends Dexie {
       workouts: 'id, localDate, status', meals: 'id, localDate, mealType', journals: 'id, &localDate',
       goals: 'id, &effectiveFrom', weights: 'id, &localDate', templates: 'id', metadata: 'id',
     });
+    this.version(2).stores({ mealCombos: 'id, name' });
   }
 }
 export const db = new RepLogDB();
@@ -42,11 +44,11 @@ export async function initialize(database = db) {
 }
 export async function readSnapshot(database = db): Promise<Snapshot> {
   return database.transaction('r', database.tables, async () => {
-    const [profile, exercises, foods, workouts, meals, journals, goals, weights, templates, generation] = await Promise.all([
+    const [profile, exercises, foods, workouts, meals, journals, goals, weights, templates, mealCombos, generation] = await Promise.all([
       database.profiles.get('local'), database.exercises.toArray(), database.foods.toArray(), database.workouts.toArray(),
-      database.meals.toArray(), database.journals.toArray(), database.goals.toArray(), database.weights.toArray(), database.templates.toArray(), database.metadata.get('generation'),
+      database.meals.toArray(), database.journals.toArray(), database.goals.toArray(), database.weights.toArray(), database.templates.toArray(), database.mealCombos.toArray(), database.metadata.get('generation'),
     ]);
     if (!profile || !generation) throw new Error('本地档案未准备好，请刷新后重试');
-    return { profile, exercises, foods, workouts, meals, journals, goals, weights, templates, generation: generation.value };
+    return { profile, exercises, foods, workouts, meals, journals, goals, weights, templates, mealCombos, generation: generation.value };
   });
 }

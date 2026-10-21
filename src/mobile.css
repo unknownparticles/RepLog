@@ -110,4 +110,11 @@
   .recipe-grid { grid-template-columns: minmax(0, 1fr); }
   .recipe-filters { flex-wrap: wrap; overflow: visible; }
   .recipe-filters button { min-height: 44px; }
+  .catalog-food-row, .saved-combo { flex-wrap: wrap; }
+  .combo-row-fields { grid-template-columns: minmax(0, 1fr) 80px 44px; }
+  .combo-row-fields>.field:first-child { grid-column: 1 / 4; }
+  .combo-row-fields>.field { margin-bottom: 0; }
+  .combo-row-fields>.icon-button { align-self: end; }
+  .meal-ideas { grid-template-columns: minmax(0, 1fr); }
+  .combo-totals .metric { padding: 12px; }
 }

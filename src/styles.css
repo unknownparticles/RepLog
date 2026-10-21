@@ -672,3 +672,18 @@ main { padding: 32px; width: 100%; max-width: 1500px; margin: 0 auto; flex: 1; m
   .recipe-totals .metric { padding: 12px; }
   .recipe-totals .metric-value { font-size: 23px; }
 }
+.catalog-food-list { margin-block: 16px; }
+.catalog-food-row, .saved-combo { display: flex; align-items: center; gap: 16px; justify-content: space-between; padding-block: 16px; border-bottom: 1px solid var(--line); }
+.catalog-food-row>div, .saved-combo>div { min-width: 0; }
+.catalog-food-row p, .meal-ideas p { color: var(--muted); font-size: 12px; line-height: 1.8; margin-block: 7px; }
+.catalog-food-row>.button { flex-shrink: 0; }
+.combo-row { border: 1px solid var(--line); border-radius: 6px; margin: 14px 0; padding: 12px; min-width: 0; }
+.combo-row legend { font-size: 12px; padding-inline: 6px; overflow-wrap: anywhere; }
+.combo-row-fields { display: grid; grid-template-columns: minmax(0, 1fr) 100px 90px auto; align-items: center; gap: 10px; }
+.combo-row-fields .field { min-width: 0; }
+.combo-row-fields select { width: 100%; }
+.combo-food-picker { margin-block: 12px 20px; max-height: 230px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+.combo-totals { margin-top: 18px; }
+.meal-ideas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-block: 16px; }
+.meal-ideas article { border: 1px solid var(--line); border-radius: 6px; padding: 16px; min-width: 0; }
+.combo-totals .metric-value { font-size: 23px; }

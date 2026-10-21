@@ -17,6 +17,7 @@ export function AiMealEstimate({ provider: override }: { provider?: MealEstimate
   const controller = useRef<AbortController | null>(null); const mounted = useRef(true);
   useEffect(() => { mounted.current=true; return () => { mounted.current=false; controller.current?.abort(); }; },[]);
   return <section className="panel ai-meal-panel"><div className="panel-heading"><h2>AI 餐食草稿</h2><span className="badge">{provider.enabled ? '已配置服务' : '尚未配置'}</span></div>
+    <Link className="button secondary" to="/healthy-meals">仅匹配已登记食物热量（离线）</Link>
     <p className="form-note">描述食物和大致份量，AI 返回可修改的估算草稿。只有确认后才会记入餐食，未知营养项保留为空。</p>
     {!provider.enabled && <p className="calculator-notice">AI 接口已预留，当前没有连接服务。可继续使用本地计算与手动记餐。</p>}
     <form onSubmit={submit(async () => {

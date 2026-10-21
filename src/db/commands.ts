@@ -77,7 +77,7 @@ export async function saveWorkout(value: Workout, generation: string) {
     return put(db.workouts, checked);
   });
 }
-export async function removeRecord(tableName: 'workouts' | 'meals' | 'weights' | 'templates', value: Entity, generation: string) {
+export async function removeRecord(tableName: 'workouts' | 'meals' | 'weights' | 'templates' | 'mealCombos', value: Entity, generation: string) {
   return transact(generation, async () => {
     const table = db.table(tableName);
     const existing = await table.get(value.id);
